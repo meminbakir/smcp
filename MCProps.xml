@@ -1,0 +1,117 @@
+<?xml version="1.0"?>
+<modelCheckers>
+	<mc type="PRISM">
+		<name>prism</name>
+		<!--Provide app path -->
+		<appPath>
+			<os type="WINDOWS">
+				<!-- 				C:\prism\customPrism\bin\customPrism.bat -->
+				C:\prism\prism-4.2.1\bin\prism.bat
+			</os>
+			<os type="LINUX">
+				<!-- customPrism in Linux prism -->
+				/opt/prism/prism-4.2.1/bin/prism
+			</os>
+		</appPath>
+		<outputDir></outputDir>
+		<modelExtension>prism</modelExtension>
+	</mc>
+
+	<mc type="PLASMA">
+		<name>plasma</name>
+		<!--Provide app path -->
+		<appPath>
+			<os type="WINDOWS">
+				C:\plasma\fr.inria.plasmalab.plasmalab-1.3.2.jar
+			</os>
+			<os type="LINUX">
+				/opt/plasma/fr.inria.plasmalab.plasmalab-1.3.2.jar
+			</os>
+		</appPath>
+		<outputDir></outputDir>
+		<modelExtension>rml</modelExtension>
+	</mc>
+	<mc type="YMER">
+		<name>ymer</name>
+		<!--Provide app path -->
+		<appPath>
+			<os type="WINDOWS">
+				YMER FOR WINDOWS DOES NOT EXISTS
+			</os>
+			<os type="LINUX">
+				/usr/local/bin/ymer
+			</os>
+		</appPath>
+		<outputDir></outputDir>
+		<modelExtension>prism</modelExtension>
+	</mc>
+	<mc type="MRMC" hasExternalTool="true">
+		<name>mrmc</name>
+		<!--Provide app path -->
+		<appPath>
+			<os type="WINDOWS">
+				mrmc
+			</os>
+			<os type="LINUX">
+				mrmc
+			</os>
+		</appPath>
+		<outputDir></outputDir>
+		<!--MRMC uses prism extension then .tra, .lab automatically will be extracted -->
+		<externalTool type="PRISM">
+			<modelExtension>prism</modelExtension>
+			<externalToolPath>
+				<os type="WINDOWS">
+					C:\prism\customPrism\bin\customPrism.bat
+				</os>
+				<os type="LINUX">
+					<!-- customPrism in Linux prism -->
+					/opt/prism/prism-4.2.1/bin/prism
+				</os>
+			</externalToolPath>
+		</externalTool>
+	</mc>
+	<mc type="MC2" hasExternalTool="true">
+		<name>mc2</name>
+		<!--Provide app path -->
+		<appPath>
+			<os type="WINDOWS">
+				C:\mc2\MC2v2.0beta2.jar
+			</os>
+			<os type="LINUX">
+				/opt/mc2/mc2.jar
+			</os>
+		</appPath>
+		<outputDir></outputDir>
+		<!-- <externalTool type="PRISM"> <modelExtension>prism</modelExtension> 
+			<externalToolPath> <os type="WINDOWS"> C:\prism\customPrism\bin\customPrism.bat 
+			</os> <os type="LINUX"> customPrism in Linux prism /opt/prism/prism-4.2.1/bin/prism 
+			</os> </externalToolPath> </externalTool> -->
+		<externalTool type="GILLESPIE2">
+			<modelExtension>sbml</modelExtension>
+			<externalToolPath>
+				<os type="WINDOWS">
+					C:\Users\Mehmet\OneDrive\git\modifiedGillespie2\Gillespie2\Debug\Gillespie2.exe
+				</os>
+				<os type="LINUX">
+					<!-- The released version of modified gillespie2 -->
+					/usr/local/bin/gillespie2
+				</os>
+			</externalToolPath>
+		</externalTool>
+	</mc>
+	<mc type="PYTHON">
+		<name>python</name>
+		<!--Provide app path -->
+		<appPath>
+			<os type="WINDOWS">
+				python
+			</os>
+			<os type="LINUX">
+				/usr/bin/anaconda3/bin/python3
+			</os>
+		</appPath>
+		<outputDir></outputDir>
+		<modelExtension>prism</modelExtension>
+	</mc>
+</modelCheckers>

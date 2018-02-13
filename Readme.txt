@@ -1,0 +1,3 @@
+This was the same copy of C:\Users\Mehmet\OneDrive\workspaces\MeminSony\ws\mars2\SMCPredictorDesktopApp
+I made this copy to translate SBML to PRISM without changing the constant rates etc...
+Change data 04.02.2018

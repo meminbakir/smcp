@@ -1,0 +1,11 @@
+/bin/
+# virtual machine crash logs
+hs_err_pid*
+*.log
+/models/
+/null/
+/output/
+/outputtopologies/
+/.classpath
+/.project
+*.pyc
