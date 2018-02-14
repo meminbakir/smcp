@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="target/generated-sources/antlr4"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/usr/lib64"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="libs/antlr-4.5-complete.jar"/>
+	<classpathentry kind="lib" path="libs/jgrapht-ext-0.9.1-uber.jar"/>
+	<classpathentry kind="lib" path="libs/log4j-1.2.17.jar"/>
+	<classpathentry kind="lib" path="libs/slf4j-api-1.7.12.jar"/>
+	<classpathentry kind="lib" path="libs/slf4j-log4j12-1.7.12.jar"/>
+	<classpathentry kind="lib" path="libs/jung/collections-generic-4.01.jar"/>
+	<classpathentry kind="lib" path="libs/jung/colt-1.2.0.jar"/>
+	<classpathentry kind="lib" path="libs/jung/concurrent-1.3.4.jar"/>
+	<classpathentry kind="lib" path="libs/jung/j3d-core-1.3.1.jar"/>
+	<classpathentry kind="lib" path="libs/jung/jung-3d-2.0.1.jar"/>
+	<classpathentry kind="lib" path="libs/jung/jung-3d-demos-2.0.1.jar"/>
+	<classpathentry kind="lib" path="libs/jung/jung-algorithms-2.0.1.jar"/>
+	<classpathentry kind="lib" path="libs/jung/jung-api-2.0.1.jar"/>
+	<classpathentry kind="lib" path="libs/jung/jung-graph-impl-2.0.1.jar"/>
+	<classpathentry kind="lib" path="libs/jung/jung-io-2.0.1.jar"/>
+	<classpathentry kind="lib" path="libs/jung/jung-jai-2.0.1.jar"/>
+	<classpathentry kind="lib" path="libs/jung/jung-jai-samples-2.0.1.jar"/>
+	<classpathentry kind="lib" path="libs/jung/jung-samples-2.0.1.jar"/>
+	<classpathentry kind="lib" path="libs/jung/jung-visualization-2.0.1.jar"/>
+	<classpathentry kind="lib" path="libs/jung/stax-api-1.0.1.jar"/>
+	<classpathentry kind="lib" path="libs/jung/vecmath-1.3.1.jar"/>
+	<classpathentry kind="lib" path="libs/jung/wstx-asl-3.2.6.jar"/>
+	<classpathentry kind="lib" path="libs/javax.mail.jar"/>
+	<classpathentry kind="lib" path="libs/jsbml-1.1-with-dependencies.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
