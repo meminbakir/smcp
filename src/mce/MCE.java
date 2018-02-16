@@ -4,6 +4,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import mce.util.Config;
+import mce.util.Utils;
+import mchecking.translator.qt.PQuery;
+import mchecking.translator.qt.PQueryManager;
+import modify.Modifier;
+
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLReader;
@@ -13,11 +19,6 @@ import org.sbml.jsbml.Species;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import mce.util.Config;
-import mce.util.Utils;
-import mchecking.translator.qt.PQuery;
-import mchecking.translator.qt.PQueryManager;
-import modify.Modifier;
 import output.Output;
 
 /**
@@ -125,6 +126,9 @@ public class MCE {
 				document = reader.readSBML(sbmlFilePath);
 			} else {
 				// Get the output of validation which contains error messages.
+				// TODO: If the file cannot pass the validation than warn the user, use the modified version
+				// and suggest the best MC
+
 				output = validation.output;
 			}
 			Utils.out("Modification completed.\nThe modified file written out to : " + sbmlFilePath);
@@ -165,9 +169,7 @@ public class MCE {
 
 					// EVENTUALLY Query
 					query = "with probability >=1 EVENTUALLY " + speciesLast + ">" + (50);
-					query = "with probability >=1 NEXT " + speciesLast + ">=" + (50);
 					query = "with probability >=1 " + species0Str + " >=50 UNTIL " + speciesLast + ">=50";
-					query = "with probability >=1 " + speciesLast + " >=50 FOLLOWS " + species0Str + ">=50"; // second
 																												// follows
 																												// first
 					query = "with probability >=1 " + species0Str + " >=50 PRECEDES " + speciesLast + ">=50";// first
@@ -179,6 +181,9 @@ public class MCE {
 					query = "with probability >=1 " + species0Str + " >=50 WEAK-UNTIL " + speciesLast + ">=50"; // WEAK-UNTIL
 					// ALWAYS
 					query = "with probability >=1 ALWAYS " + speciesLast + ">=" + (0);
+					query = "with probability >=1 NEXT " + speciesLast + ">=" + (50);
+					query = "with probability >=1 " + speciesLast + " >=50 FOLLOWS " + species0Str + ">=50"; // second
+
 					pQuery.validateAndAssingPQuery(query);
 
 				} catch (Exception e) {

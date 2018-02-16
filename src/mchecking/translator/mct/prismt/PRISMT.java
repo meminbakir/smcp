@@ -10,6 +10,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import mce.Inputs;
+import mchecking.ModelChecker;
+import mchecking.translator.TranslatorUtil;
+import mchecking.translator.mct.IMCT;
+import mchecking.translator.mct.Scale;
+import mchecking.translator.mct.prismt.beans.Const;
+import mchecking.translator.mct.prismt.beans.Molecule;
+import mchecking.translator.mct.prismt.beans.Next;
+import mchecking.translator.mct.prismt.beans.Next.Comparer;
+import mchecking.translator.mct.prismt.beans.Next.Operator;
+import mchecking.translator.mct.prismt.beans.Next.Type;
+
 import org.sbml.jsbml.Compartment;
 import org.sbml.jsbml.JSBML;
 import org.sbml.jsbml.KineticLaw;
@@ -37,18 +49,6 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.STGroupFile;
 
-import mce.Inputs;
-import mchecking.ModelChecker;
-import mchecking.translator.TranslatorUtil;
-import mchecking.translator.mct.IMCT;
-import mchecking.translator.mct.Scale;
-import mchecking.translator.mct.prismt.beans.Const;
-import mchecking.translator.mct.prismt.beans.Molecule;
-import mchecking.translator.mct.prismt.beans.Next;
-import mchecking.translator.mct.prismt.beans.Next.Comparer;
-import mchecking.translator.mct.prismt.beans.Next.Operator;
-import mchecking.translator.mct.prismt.beans.Next.Type;
-
 /**
  * @author Mehmet Emin BAKIR
  *
@@ -70,6 +70,7 @@ public class PRISMT implements IMCT {
 		this.targetMC = targetMC;
 		group = new STGroupFile(stFilePath);
 	}
+
 	//
 	// public PRISMT(String stFilePath, ModelChecker targetMC) {
 	// this.targetMC = targetMC;
@@ -505,9 +506,12 @@ public class PRISMT implements IMCT {
 			Compartment comp = sbmlModel.getCompartment(i);
 			String constName = comp.getId();
 			if (!addedVars.contains(constName)) {
-				constBean = new Const("double", constName, convertFromScientificNotation(comp.getSize()));
-				addedVars.add(constName);
-				constsST.add("consts", constBean);
+				double size = comp.getSize();
+				if (!Double.isNaN(size)) {
+					constBean = new Const("double", constName, convertFromScientificNotation(size));
+					addedVars.add(constName);
+					constsST.add("consts", constBean);
+				}
 			}
 		}
 		// Parameters which are declared in compartment level not in reaction level
@@ -596,7 +600,7 @@ public class PRISMT implements IMCT {
 	 * A species is constant if it constant attribute set true, OR the boundaryCondition attribute set true, If it is on
 	 * boundary that means its value cannot be changed by reactions but can be changed by other mechanisms such as rules,
 	 * events.. In our translation since we ignore rules and events, and we only regard the reactions, so we can assume when
-	 * boundary condition is true than its value will not change…
+	 * boundary condition is true than its value will not changeï¿½
 	 * 
 	 * @param species
 	 * @return
@@ -658,8 +662,8 @@ public class PRISMT implements IMCT {
 	 * @return
 	 */
 	public static double getSpeciesInitialValue(Species species) {
-		double result = Double.isNaN(species.getInitialConcentration()) ? species.getInitialAmount()
-				: species.getInitialConcentration();
+		double result = Double.isNaN(species.getInitialConcentration()) ? species.getInitialAmount() : species
+				.getInitialConcentration();
 		if (Double.isNaN(result)) {
 			log.error("Please set the inital value for species {} ", species.getId());
 		}

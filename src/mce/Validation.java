@@ -6,6 +6,11 @@ package mce;
 import java.util.HashMap;
 import java.util.Map;
 
+import mchecking.translator.mct.Scale;
+import mtopology.KineticLawEval;
+import mtopology.KineticLawEvalLexer;
+import mtopology.KineticLawEvalParser;
+
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.sbml.jsbml.JSBML;
@@ -28,10 +33,6 @@ import org.sbml.jsbml.SBMLReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import mchecking.translator.mct.Scale;
-import mtopology.KineticLawEval;
-import mtopology.KineticLawEvalLexer;
-import mtopology.KineticLawEvalParser;
 import output.Output;
 
 /**
@@ -61,7 +62,7 @@ public class Validation {
 
 	Output output = null;
 
-	private Map<ValidationError, Integer> validationError = null;
+	private Map<ValidationError, Integer> validationErrors = null;
 
 	Validation() {
 		setValidationError(new HashMap<>());
@@ -75,9 +76,6 @@ public class Validation {
 	 * @throws Exception
 	 */
 	public boolean validateSBML(String sbmlFilePath) throws Exception {
-		if (sbmlFilePath.contains("BIOMD0000000449")) {
-			System.out.println("here I am for debug");
-		}
 		boolean isValid = true;
 		String errors = "";
 		try {
@@ -204,18 +202,18 @@ public class Validation {
 	}
 
 	/**
-	 * @return the validationError
+	 * @return the validationErrors
 	 */
 	public Map<ValidationError, Integer> getValidationError() {
-		return validationError;
+		return validationErrors;
 	}
 
 	/**
-	 * @param validationError
-	 *            the validationError to set
+	 * @param validationErrors
+	 *            the validationErrors to set
 	 */
 	public void setValidationError(Map<ValidationError, Integer> validationError) {
-		this.validationError = validationError;
+		this.validationErrors = validationError;
 	}
 
 	/**

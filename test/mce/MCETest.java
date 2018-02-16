@@ -19,7 +19,7 @@ public class MCETest {
 	public static void main(String[] args) {
 		// testMCE();
 		// "./models/sbml/test/original/"
-		String dirPath = "./models/sbml/test/original/";
+		String dirPath = "./models/sbml/test/no_modification/";
 		testMCEDir(dirPath);
 		// countValidModel("./models/sbml/curated/");
 		// Object[] result = new Object[1];
@@ -109,12 +109,8 @@ public class MCETest {
 						if (sbmlFile.getName().endsWith(".sbml") || sbmlFile.getName().endsWith(".xml")) {
 							Utils.out("[][][][][][][][][][][][][]{}{}{}{}{}{}{}{}{}{}{}{}{}{}[][][][][][][][][]");
 							try {
-								if (sbmlFile.getAbsolutePath().contains("BIOMD0000000312")) {
-									System.out.println("hsttoopp");
-								}
 								if (validation.validateSBML(sbmlFile.getAbsolutePath())) {
 									System.out.println("Valid");
-
 									validSBMLList.add(sbmlFile.getName());
 								} else {
 									// Get the output of validation which contains error messages.

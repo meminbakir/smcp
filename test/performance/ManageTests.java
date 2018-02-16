@@ -8,18 +8,20 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 
-import org.sbml.jsbml.SBMLDocument;
-//import org.sbml.libsbml.SBMLDocument;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import mce.Inputs;
+import mce.util.StringUtils;
 import mce.util.Utils;
 import mchecking.MCheck;
 import mchecking.ModelChecker;
 import mchecking.enums.MCTypes;
 import mchecking.translator.qt.PQuery;
 import mtopology.PatternProps;
+
+import org.sbml.jsbml.SBMLDocument;
+//import org.sbml.libsbml.SBMLDocument;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import output.Output;
 
 /**
@@ -47,10 +49,9 @@ public class ManageTests {
 		MCTypes[] mcTypes = null;
 		// mcTypes = new MCTypes[] { MCTypes.PRISM, MCTypes.PLASMA,
 		// MCTypes.YMER, MCTypes.MRMC, MCTypes.MC2 };
-		// mcTypes = new MCTypes[] { MCTypes.PRISM, MCTypes.PLASMA,
-		// MCTypes.YMER, MCTypes.MC2 };
-		// mcTypes = new MCTypes[] { MCTypes.MRMC, MCTypes.MC2 };
-		mcTypes = new MCTypes[] { MCTypes.PRISM };
+		mcTypes = new MCTypes[] { MCTypes.PRISM, MCTypes.PLASMA };
+		// mcTypes = new MCTypes[] { MCTypes.MRMC, MCTypes.MC2, MCTypes.YMER };
+		// mcTypes = new MCTypes[] { MCTypes.PRISM, MCTypes.MC2 };
 
 		// If there are some model checking test will be performed
 		Output output = null;
@@ -62,7 +63,7 @@ public class ManageTests {
 					 * TODO : REMOVE THE FOLLOWING if (targetMC == MCTypes.MRMC) block, directory cleaning code.
 					 */
 					if (targetMC == MCTypes.MRMC) {
-						removeMRMCSHITS();
+						removeMRMCExtras();
 					}
 
 					// repeat the model checking and eventually get their
@@ -76,8 +77,7 @@ public class ManageTests {
 
 						/*
 						 * If error type is timeout, or fatal error(belongs MRMC execution) then we will not repeat the
-						 * execution of this model, we will fill remaining output(performance) values with defaults
-						 * only.
+						 * execution of this model, we will fill remaining output(performance) values with defaults only.
 						 */
 						try {
 							if (shallErrorStopModelExecution(i, output)) {
@@ -101,15 +101,15 @@ public class ManageTests {
 					PerforRes.cleanOutputs();
 
 					/***
-					 * TODO : REMOVE THE FOLLOWING if (targetMC == MCTypes.MRMC) block, directory cleaning code. To
-					 * guarantee free space, this need to be called here too.
+					 * TODO : REMOVE THE FOLLOWING if (targetMC == MCTypes.MRMC) block, directory cleaning code. To guarantee
+					 * free space, this need to be called here too.
 					 */
 					if (targetMC == MCTypes.MRMC) {
-						removeMRMCSHITS();
+						removeMRMCExtras();
 					}
 				} else {
-					System.err.println(
-							"The model checker " + targetMC + " CANNOT execute the pattern :" + pQuery.getPQuery());
+					System.err.println("The model checker " + targetMC + " CANNOT execute the pattern :"
+							+ pQuery.getPQuery());
 				}
 
 			}
@@ -134,7 +134,10 @@ public class ManageTests {
 
 		Path sourceFile = Paths.get(input.getSbmlFilePath());
 
-		Path unSuccessDirPath = Paths.get(input.getSbmlDirectoryPath() + File.separator + UNSUCCESS);
+		String sbmlDirectoryPath = input.getSbmlDirectoryPath();
+		if (StringUtils.isNullOrEmpty(sbmlDirectoryPath))
+			sbmlDirectoryPath = "./";
+		Path unSuccessDirPath = Paths.get(sbmlDirectoryPath + File.separator + UNSUCCESS);
 		if (!unSuccessDirPath.toFile().exists())
 			Files.createDirectories(unSuccessDirPath);
 		Path unSuccessModel = Paths.get(unSuccessDirPath + File.separator + sourceFile.getFileName());
@@ -155,8 +158,8 @@ public class ManageTests {
 	}
 
 	/**
-	 * If error type is timeout, or fatal error(belongs mrmc execution) then we will not repeat the execution of this
-	 * model, we will fill remaining output(performance) values with defaults only.
+	 * If error type is timeout, or fatal error(belongs mrmc execution) then we will not repeat the execution of this model,
+	 * we will fill remaining output(performance) values with defaults only.
 	 * 
 	 * @param i
 	 * @param output
@@ -189,13 +192,12 @@ public class ManageTests {
 	/**
 	 * TODO: Just for removing MRMC garbage, Delete function at the end.
 	 */
-	public static void removeMRMCSHITS() {
+	public static void removeMRMCExtras() {
 		// TODO: MRMC will clean the previous translated and
 		// verification folders, to not cause hardisc space
 		// problem
 		log.info("This is MRMC Model checker, I will clean previous translated and verification files first.");
-		String translatedDir = System.getProperty("user.dir") + File.separator + "models" + File.separator
-				+ "translated";
+		String translatedDir = System.getProperty("user.dir") + File.separator + "models" + File.separator + "translated";
 		String verificationDir = System.getProperty("user.dir") + File.separator + "models" + File.separator
 				+ "verification";
 		try {
