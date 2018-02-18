@@ -19,7 +19,7 @@ public class MCETest {
 	public static void main(String[] args) {
 		// testMCE();
 		// "./models/sbml/test/original/"
-		String dirPath = "./models/sbml/test/no_modification/";
+		String dirPath = "./models/sbml/test/no_modification/t1";
 		testMCEDir(dirPath);
 		// countValidModel("./models/sbml/curated/");
 		// Object[] result = new Object[1];

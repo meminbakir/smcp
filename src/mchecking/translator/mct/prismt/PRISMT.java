@@ -115,7 +115,8 @@ public class PRISMT implements IMCT {
 	/**
 	 * Converts reactions to PRISM rules
 	 * 
-	 * // [] (_E-1 >= 0) & (_S-1 >= 0) & (100 >= ES+1) -> (_E' = _E - 1) & (_S' // = _S - 1) & (ES' = ES + 1);
+	 * // [] (_E-1 >= 0) & (_S-1 >= 0) & (100 >= ES+1) -> (_E' = _E - 1) & (_S' // =
+	 * _S - 1) & (ES' = ES + 1);
 	 * 
 	 * @param sbmlModel
 	 * @param modelST
@@ -132,7 +133,8 @@ public class PRISMT implements IMCT {
 				reaction = sbmlModel.getReaction(n);
 				// if reaction is bidirectional then separate each direction
 				String direction = "forward";
-				// if reaction(rule) is applicable, namely if there exist at least one species is not constant (not
+				// if reaction(rule) is applicable, namely if there exist at least one species
+				// is not constant (not
 				// constant=true, and/or boundaryCondition=true)
 				if (ruleIsApplicable(reaction)) {
 					composeRateAndRule(ruleST, reaction, direction);
@@ -147,9 +149,10 @@ public class PRISMT implements IMCT {
 	}
 
 	/**
-	 * 1-) If all species are constant, namely if all species both in reactant or in product are constant where
-	 * (constant=true, OR boundaryCondition=true), then nothing will be updated, so it is not applicable and we do not need
-	 * to generate a PRISM rule for it.
+	 * 1-) If all species are constant, namely if all species both in reactant or in
+	 * product are constant where (constant=true, OR boundaryCondition=true), then
+	 * nothing will be updated, so it is not applicable and we do not need to
+	 * generate a PRISM rule for it.
 	 * 
 	 * @param reaction
 	 * @param direction
@@ -165,7 +168,8 @@ public class PRISMT implements IMCT {
 				break;
 			}
 		}
-		// if all reactants are constant species, then check products whether all are constant.
+		// if all reactants are constant species, then check products whether all are
+		// constant.
 		if (!ruleIsApplicable) {
 			for (int i = 0; i < reaction.getNumProducts(); i++) {
 				SpeciesReference sr = reaction.getProduct(i);
@@ -264,10 +268,10 @@ public class PRISMT implements IMCT {
 				}
 			}
 		}
-		// Only If a constant species in reactant we will use it in rule , for checking it satisfies the minimum amount
-		// to
-		// get reaction(boundary guard)
-		// Otherwise if it is a product, since we can't update it, we will not use it at all
+		// Only If a constant species in reactant we will use it in rule , for checking
+		// it satisfies the minimum amount to get reaction(boundary guard)
+		// Otherwise if it is a product, since we can't update it, we will not use it at
+		// all
 		if (isReactant) {
 			Next guard = new Next();
 			guard.setName(sr.getSpecies());
@@ -289,7 +293,8 @@ public class PRISMT implements IMCT {
 		nextBean.setName(speciesStr);
 		boolean isReactant = false, isProduct = false, isBoth = false;
 		int reactantStoichiometry = 0, productStoichiometry = 0, bothSideStoichiometry = 0;
-		// If species exist in both sides, then its Stoichiometry will be product_value - reactant_value
+		// If species exist in both sides, then its Stoichiometry will be product_value
+		// - reactant_value
 		for (int i = 0; i < reaction.getNumReactants(); i++) {
 			SpeciesReference sr = reaction.getReactant(i);
 			if (speciesStr.equals(sr.getSpecies())) {
@@ -314,13 +319,14 @@ public class PRISMT implements IMCT {
 				}
 			}
 		}
-		// if species occurs on both side, we need to add one extra guard for lowerBound and one guard for
+		// if species occurs on both side, we need to add one extra guard for lowerBound
+		// and one guard for
 		// bothSideStoichiometry
 		if (isReactant && isProduct) {
 			isBoth = true;
 			Next guard1 = new Next();
 			guard1.setName(speciesStr);
-			guard1.setBound(input.getLowwerBound());
+			guard1.setBound(input.getLowerBound());
 			guard1.setType(Type.REACTANT);
 			guard1.setOperator(Operator.SUM);
 			guard1.setComparer(Comparer.GEQ);
@@ -330,7 +336,7 @@ public class PRISMT implements IMCT {
 
 		bothSideStoichiometry = reactantStoichiometry + productStoichiometry;
 		if (bothSideStoichiometry < 0) {
-			nextBean.setBound(input.getLowwerBound());
+			nextBean.setBound(input.getLowerBound());
 			nextBean.setType(Type.REACTANT);
 			nextBean.setOperator(Operator.SUM);
 			nextBean.setComparer(Comparer.GEQ);
@@ -365,7 +371,8 @@ public class PRISMT implements IMCT {
 				}
 			}
 
-			// TODO 05.02.2018 (rest of this function added) either local params has value or they inherit globally,
+			// TODO 05.02.2018 (rest of this function added) either local params has value
+			// or they inherit globally,
 			// for local ones we need to replace the variable name with the value
 			ListOf<LocalParameter> localParams = kineticLaw.getListOfLocalParameters();
 			for (int i = 0; i < localParams.size(); i++) {
@@ -383,14 +390,17 @@ public class PRISMT implements IMCT {
 				// if (reaction.getReversible()) {
 				// if (i == 0) {
 				// System.out.println(
-				// "\t Forward reaction: parameter id " + localParam.getId() + " value " + localParam.getValue());
+				// "\t Forward reaction: parameter id " + localParam.getId() + " value " +
+				// localParam.getValue());
 				// } else if (i == 1) {
-				// System.out.println("\t Backward reaction: parameter id " + localParam.getId() + " value "
+				// System.out.println("\t Backward reaction: parameter id " + localParam.getId()
+				// + " value "
 				// + localParam.getValue());
 				// }
 				// } else {
 				// System.out.println("The reaction is one-direction(non-reversible)");
-				// System.out.println("\t Parameter id " + localParam.getId() + " value " + localParam.getValue());
+				// System.out.println("\t Parameter id " + localParam.getId() + " value " +
+				// localParam.getValue());
 				// }
 			}
 		}
@@ -407,19 +417,15 @@ public class PRISMT implements IMCT {
 			Molecule moleculeBean = null;
 			for (int n = 0; n < numSpecies; n++) {
 				species = sbmlModel.getSpecies(n);
-				if (!addedVars.contains(species.getId())) {
-					moleculeBean = getValidMolecule(species);
-
-					moleculesST.add("molecules", moleculeBean);
-					addedVars.add(species.getId());
-				} else {
-					// if model is constant, we had added to the addedVars list, otherwise name has been duplicated in
-					// SBML model which is an error
-					if (isSpeciesConstant(species))
-						continue;
-					else {
+				// if species is not constant then add it as molecule
+				if (!isSpeciesConstant(species)) {
+					if (!addedVars.contains(species.getId())) {
+						moleculeBean = getValidMolecule(species);
+						moleculesST.add("molecules", moleculeBean);
+						addedVars.add(species.getId());
+					} else {
 						String error = "The model has same name " + species.getId()
-								+ " for a species and a constantant. Please provide different names.\n";
+								+ " for a species and a constant. Please provide different names.\n";
 						throw new Exception(error);
 					}
 				}
@@ -432,25 +438,29 @@ public class PRISMT implements IMCT {
 		Molecule moleculeBean = new Molecule();
 
 		moleculeBean.setName(TranslatorUtil.checkKeyword(species.getId()));
-		moleculeBean.setLowerBound(input.getLowwerBound());
-		moleculeBean.setUpperBound(input.getUpperBound());
-		// TODO 04.Feb.2018 change start, initially it was only getting only the getInitialAmount, but now
+		String lowwerBound = input.getLowerBound();
+		String upperBound = input.getUpperBound();
+
+		moleculeBean.setLowerBound(lowwerBound);
+		moleculeBean.setUpperBound(upperBound);
+		// TODO 04.Feb.2018 change start, initially it was only getting only the
+		// getInitialAmount, but now
 		// which of getInitialAmount or getInitialConcentration is set will be assigned.
 		double init = getSpeciesInitialValue(species);
 		//
 		init = Double.parseDouble(convertFromScientificNotation(init));
 
-		if (init < Double.parseDouble(input.getLowwerBound())) {
-			init = Double.parseDouble(input.getLowwerBound());
+		if (init < Double.parseDouble(lowwerBound)) {
+			init = Double.parseDouble(lowwerBound);
 			log.warn(moleculeBean.getName() + " has lower initial value '" + species.getInitialAmount()
 					+ "' than the default one, so init value has been automatically set to the lowest bound'"
-					+ input.getLowwerBound() + "'");
+					+ lowwerBound + "'");
 		}
-		if (init > Double.parseDouble(input.getUpperBound())) {
-			init = Double.parseDouble(input.getUpperBound());
+		if (init > Double.parseDouble(upperBound)) {
+			init = Double.parseDouble(upperBound);
 			log.warn(moleculeBean.getName() + " has upper initial value '" + species.getInitialAmount()
 					+ "' than the default one, so init value has been automatically set to the upper bound'"
-					+ input.getUpperBound() + "'");
+					+ upperBound + "'");
 		}
 		if (init % 1 != 0) {
 			log.warn("Initial amount cannot be a double number for species: '" + species.getId() + "' is " + init
@@ -538,11 +548,12 @@ public class PRISMT implements IMCT {
 					String constName = species.getId();
 					if (!addedVars.contains(constName)) {
 						double init = getSpeciesInitialValue(species);
-						if (init % 1 != 0) {
-							log.warn("Initial amount cannot be a double number for species: '" + species.getId() + "' is "
-									+ init + "\nThe amount will automatically be casted to Integer!");
-						}
-						constBean = new Const("double", constName, String.valueOf((int) init));
+						// if (init % 1 != 0) {
+						// log.warn("Initial amount cannot be a double number for species: '" +
+						// species.getId()
+						// + "' is " + init + "\nThe amount will automatically be casted to Integer!");
+						// }
+						constBean = new Const("double", constName, String.valueOf(init));// String.valueOf((int) init)
 						addedVars.add(constName);
 						constsST.add("consts", constBean);
 					}
@@ -553,8 +564,10 @@ public class PRISMT implements IMCT {
 		// TODO:05.Feb.2018 I am not sure I should use local params as constant
 		// Since they are either have value at local which makes non-cons
 		// or they are specified globally which are added above
-		// I commented out the local names as constant, as we have to use their values in the rules,
-		// we cannot use the local names as constant because name may duplicated and have different names,
+		// I commented out the local names as constant, as we have to use their values
+		// in the rules,
+		// we cannot use the local names as constant because name may duplicated and
+		// have different names,
 		// sbml allows this but we cannot use it.
 
 		// // Add reaction level local parameters as constant
@@ -562,8 +575,10 @@ public class PRISMT implements IMCT {
 		// Reaction reaction = sbmlModel.getReaction(n);
 		// if (reaction.isSetKineticLaw()) {
 		// KineticLaw kineticLaw = reaction.getKineticLaw();
-		// //// TODO 04.02.2018 ListOf listOfParameters2 = kineticLaw.getListOfParameters();
-		// ListOf<LocalParameter> listOfParameters2 = kineticLaw.getListOfLocalParameters();
+		// //// TODO 04.02.2018 ListOf listOfParameters2 =
+		// kineticLaw.getListOfParameters();
+		// ListOf<LocalParameter> listOfParameters2 =
+		// kineticLaw.getListOfLocalParameters();
 		// for (int i = 0; i < listOfParameters2.size(); i++) {
 		// LocalParameter parameter = listOfParameters2.get(i);
 		// if (reaction.getReversible()) {
@@ -597,10 +612,12 @@ public class PRISMT implements IMCT {
 	}
 
 	/**
-	 * A species is constant if it constant attribute set true, OR the boundaryCondition attribute set true, If it is on
-	 * boundary that means its value cannot be changed by reactions but can be changed by other mechanisms such as rules,
-	 * events.. In our translation since we ignore rules and events, and we only regard the reactions, so we can assume when
-	 * boundary condition is true than its value will not change�
+	 * A species is constant if it constant attribute set true, OR the
+	 * boundaryCondition attribute set true, If it is on boundary that means its
+	 * value cannot be changed by reactions but can be changed by other mechanisms
+	 * such as rules, events.. In our translation since we ignore rules and events,
+	 * and we only regard the reactions, so we can assume when boundary condition is
+	 * true than its value will not change�
 	 * 
 	 * @param species
 	 * @return
@@ -614,7 +631,8 @@ public class PRISMT implements IMCT {
 	}
 
 	/**
-	 * Finds the species of @param SpeciesReference and checks if the species has constant=true OR boundaryCondition=true
+	 * Finds the species of @param SpeciesReference and checks if the species has
+	 * constant=true OR boundaryCondition=true
 	 * 
 	 * @param sr
 	 *            SpeciesReference
@@ -655,15 +673,16 @@ public class PRISMT implements IMCT {
 	}
 
 	/**
-	 * Either the initial amount or the initial concentration of the species should be specified. It returns which ever one
-	 * is set. If none it set, it is an error.
+	 * Either the initial amount or the initial concentration of the species should
+	 * be specified. It returns which ever one is set. If none it set, it is an
+	 * error.
 	 * 
 	 * @param species
 	 * @return
 	 */
 	public static double getSpeciesInitialValue(Species species) {
-		double result = Double.isNaN(species.getInitialConcentration()) ? species.getInitialAmount() : species
-				.getInitialConcentration();
+		double result = Double.isNaN(species.getInitialConcentration()) ? species.getInitialAmount()
+				: species.getInitialConcentration();
 		if (Double.isNaN(result)) {
 			log.error("Please set the inital value for species {} ", species.getId());
 		}

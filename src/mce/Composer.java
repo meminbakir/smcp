@@ -2,15 +2,15 @@ package mce;
 
 import java.util.List;
 
+import org.sbml.jsbml.SBMLDocument;
+
 import mce.util.Utils;
+import mchecking.MCheck;
 import mchecking.ModelChecker;
 import mchecking.translator.qt.PQuery;
 import mlearning.MLearning;
 import mtopology.PatternProps;
 import mtopology.TopologyManager;
-
-import org.sbml.jsbml.SBMLDocument;
-
 import output.Output;
 import performance.ManageTests;
 
@@ -31,15 +31,16 @@ public class Composer {
 		Output output = new Output();
 
 		// Run all model checkers, for test purpose.
-		// output = testAllMCheckers(input, sbml, pQuery, patternPropsList);
-		output = testOneModelChecker(input, sbml, pQuery, patternPropsList);
+		 output = testAllMCheckers(input, sbml, pQuery, patternPropsList);
+//		output = testOneModelChecker(input, sbml, pQuery, patternPropsList);
 
 		return output;
 	}
 
 	/**
 	 * 
-	 * To Test and Record the performance results It should be uncommented after performance experiments.
+	 * To Test and Record the performance results It should be uncommented after
+	 * performance experiments.
 	 * 
 	 * @param input
 	 * @param sbml
@@ -49,7 +50,8 @@ public class Composer {
 	 * @return
 	 */
 	@SuppressWarnings("unused")
-	private Output testAllMCheckers(Inputs input, SBMLDocument sbml, PQuery pQuery, List<PatternProps> patternPropsList) {
+	private Output testAllMCheckers(Inputs input, SBMLDocument sbml, PQuery pQuery,
+			List<PatternProps> patternPropsList) {
 		Output output = ManageTests.runPerformanceTests(input, sbml, pQuery, patternPropsList);
 		return output;
 	}
@@ -59,14 +61,15 @@ public class Composer {
 	 * @param patternProps
 	 * @param output
 	 */
-	private Output testOneModelChecker(Inputs input, SBMLDocument sbml, PQuery pQuery, List<PatternProps> patternPropsList) {
+	private Output testOneModelChecker(Inputs input, SBMLDocument sbml, PQuery pQuery,
+			List<PatternProps> patternPropsList) {
 		ModelChecker targetMC = new MLearning().estimateMChecker(patternPropsList, pQuery);
 		// TODO 04.02.2018 Uncommented 2 lines
-		// System.out.println("Model" + input.getFileName() + " predicted MC " + targetMC.getName());
-		// Output output = new MCheck().modelCheck(input, sbml, targetMC, pQuery);
-		// return output;
+		System.out.println("Model" + input.getFileName() + " predicted MC " + targetMC.getType());
+		Output output = new MCheck().modelCheck(input, sbml, targetMC, pQuery);
+		return output;
 		// TODO 04.02.2018 commented
-		return null;
+		// return null;
 	}
 
 	/**

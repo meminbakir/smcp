@@ -36,8 +36,8 @@ import org.slf4j.LoggerFactory;
 import output.Output;
 
 /**
- * Checks if sbml model has errors, and is it valid for our needs, e.g. should be only one compartment and do not include
- * function
+ * Checks if sbml model has errors, and is it valid for our needs, e.g. should
+ * be only one compartment and do not include function
  * 
  * @author Mehmet Emin BAKIR
  *
@@ -52,20 +52,21 @@ public class Validation {
 	 *
 	 */
 	enum ValidationError {
-		HasMultiCompartment,
-		HasRules,
-		HasFunctions,
-		HasDecimalAmount, // If species amount is not integer
-		KineticFormulaProblem,
-		Other
+		HasMultiCompartment, HasRules, HasFunctions, HasDecimalAmount, // If species amount is not integer
+		KineticFormulaProblem, Other
 	}
 
 	Output output = null;
+	Inputs input;
 
 	private Map<ValidationError, Integer> validationErrors = null;
 
 	Validation() {
 		setValidationError(new HashMap<>());
+	}
+
+	public Validation(Inputs input) {
+		this.input = input;
 	}
 
 	/**
@@ -130,7 +131,7 @@ public class Validation {
 
 			// Check if initial amount is decimal, if so, then rescale to integer
 			// return false, if it is decimal but not possible to rescale it
-			Scale scale = new Scale();
+			Scale scale = new Scale(input);
 			if (!scale.isSpeciesScalable(sbmlModel)) {
 				String message = scale.getScalableMessage();
 				errors += message;
@@ -195,6 +196,7 @@ public class Validation {
 				output.error = "SBML file '" + sbmlFilePath + "' contains following problems.\n" + errors;
 			}
 		} catch (Exception e) {
+			// errors += "\n" + e.getMessage();
 			throw new Exception(errors);
 		}
 
@@ -205,6 +207,9 @@ public class Validation {
 	 * @return the validationErrors
 	 */
 	public Map<ValidationError, Integer> getValidationError() {
+		if (validationErrors == null) {
+			return new HashMap<>();
+		}
 		return validationErrors;
 	}
 
@@ -235,8 +240,8 @@ public class Validation {
 	}
 
 	/**
-	 * Check if any initial amount is in decimal, if so find the max coefficient so that all species initial amount can be
-	 * rescaled to integer
+	 * Check if any initial amount is in decimal, if so find the max coefficient so
+	 * that all species initial amount can be rescaled to integer
 	 * 
 	 * @param sbmlModel
 	 * @return
@@ -247,7 +252,8 @@ public class Validation {
 	// for (int n = 0; n < sbmlModel.getNumSpecies(); n++) {
 	// species = sbmlModel.getSpecies(n);
 	// String speciesID = species.getId();
-	// double initialValue = Double.isNaN(species.getInitialConcentration()) ? species.getInitialAmount()
+	// double initialValue = Double.isNaN(species.getInitialConcentration()) ?
+	// species.getInitialAmount()
 	// : species.getInitialConcentration();
 	// if (!Double.isNaN(initialValue)) {
 	// if (!isInteger(initialValue)) {// if it is decimal

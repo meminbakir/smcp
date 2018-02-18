@@ -37,12 +37,18 @@ public class Config {
 			String projPath = projDir.toString();
 			// System.out.println("path0:" + projPath);
 
-			// File jarPath = new File(Config.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+			// File jarPath = new
+			// File(Config.class.getProtectionDomain().getCodeSource().getLocation().getPath());
 			// String pPat = jarPath.getParentFile().getAbsolutePath();
 			// System.out.println(" propertiesPath-1:" + pPat);
-			// File projectPath = new File(MCE.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+			// File projectPath = new
+			// File(MCE.class.getProtectionDomain().getCodeSource().getLocation().getPath());
 			// String propertiesPath = projectPath.getParent();
-			String fileName = projPath + File.separator + "config.properties";// propertiesPath + File.separator +
+			
+			//TODO: the following line was active was working for linux and windows, check if the new 
+			//one works too. Especially for jar files
+			// String fileName = projPath + File.separator + "config.properties";//
+			String fileName = "./" + File.separator + "config.properties";
 			// System.out.println("Path for Config:" + fileName);
 			// input = Config.class.getClassLoader().getResourceAsStream(fileName);
 			// if (input == null) {
@@ -81,8 +87,10 @@ public class Config {
 	public static void main(String[] args) {
 
 		// ClassLoader loader = MCE.class.getClassLoader();
-		// System.out.println(new MCE().getClass().getProtectionDomain().getCodeSource().getLocation());
-		// File projectPath = new File(MCE.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+		// System.out.println(new
+		// MCE().getClass().getProtectionDomain().getCodeSource().getLocation());
+		// File projectPath = new
+		// File(MCE.class.getProtectionDomain().getCodeSource().getLocation().getPath());
 		// String propertiesPath = projectPath.getParentFile().getAbsolutePath();
 		// System.out.println(" propertiesPath-" + propertiesPath);
 		// // prop.load(new FileInputStream(propertiesPath + "/importer.properties"));

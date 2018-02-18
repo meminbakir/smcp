@@ -41,8 +41,9 @@ public class MCE {
 	public static void start(String[] arguments) {
 		MCE mce = new MCE();
 		Inputs input = new Inputs(arguments);
-		log.info("Reading model...");
+		log.info("Application started.");
 		mce.mce(input);
+		log.info("Application run completed. For execution details please check the log file.");
 	}
 
 	private void mce(Inputs input) {
@@ -73,9 +74,9 @@ public class MCE {
 			// Read pattern queries from the file
 
 			// TODO 04.Feb.2018 uncomment the following line and remove the @4test.
-			// List<PQuery> pQueryList = pQueryManager.loadPQueriesFromFile(input.getpQueryFilePath());
+			List<PQuery> pQueryList = pQueryManager.loadPQueriesFromFile(input.getpQueryFilePath());
 
-			List<PQuery> pQueryList = getPQueryList(input);// TODO @4test
+			// List<PQuery> pQueryList = getPQueryList(input);// TODO @4test
 			if (pQueryList != null) {
 				for (PQuery pQuery : pQueryList) {
 					if (pQuery != null) {
@@ -101,7 +102,8 @@ public class MCE {
 	}
 
 	/***
-	 * Checks whether SBML has any error, If it is valid, then modify it, e.g. constant kinetic
+	 * Checks whether SBML has any error, If it is valid, then modify it, e.g.
+	 * constant kinetic
 	 * 
 	 * @param input
 	 * @return
@@ -116,17 +118,19 @@ public class MCE {
 			File rawFile = new File(sbmlFilePath);
 
 			// TODO 04.Feb.2018 I need to have option to translate without modification
-			// TODO 04.Feb.2018 sbmlFilePath = Modifier.modify(rawFile, input.getOutputDir());
+			// TODO 04.Feb.2018 sbmlFilePath = Modifier.modify(rawFile,
+			// input.getOutputDir());
 
 			// If the file pass validation
-			Validation validation = new Validation();
+			Validation validation = new Validation(input);
 			if (validation.validateSBML(sbmlFilePath)) {
 
 				SBMLReader reader = new SBMLReader();
 				document = reader.readSBML(sbmlFilePath);
 			} else {
 				// Get the output of validation which contains error messages.
-				// TODO: If the file cannot pass the validation than warn the user, use the modified version
+				// TODO: If the file cannot pass the validation than warn the user, use the
+				// modified version
 				// and suggest the best MC
 
 				output = validation.output;
@@ -143,7 +147,8 @@ public class MCE {
 		System.exit(1);
 	}
 
-	// TODO 04.Feb.2018 this method copied from the performance benchmarking project, it can be deleted before production
+	// TODO 04.Feb.2018 this method copied from the performance benchmarking
+	// project, it can be deleted before production
 	// TODO FIXME pQuery should be removed
 	// TODO following code can be used during testing queries on real models
 	private List<PQuery> getPQueryList(Inputs input) {
@@ -168,22 +173,22 @@ public class MCE {
 					String query = "";
 
 					// EVENTUALLY Query
-					query = "with probability >=1 EVENTUALLY " + speciesLast + ">" + (50);
-					query = "with probability >=1 " + species0Str + " >=50 UNTIL " + speciesLast + ">=50";
-																												// follows
-																												// first
-					query = "with probability >=1 " + species0Str + " >=50 PRECEDES " + speciesLast + ">=50";// first
-																												// precedes
-																												// second
+					// follows
+					// first
+					// precedes
+					// second
 					query = "with probability >=1 STEADY-STATE " + speciesLast + ">=50"; // STEADY-STATE
 					query = "with probability >=1 INFINITELY-OFTEN " + speciesLast + ">=50"; // STEADY-STATE
-					query = "with probability >=1 NEVER " + speciesLast + ">=50"; // NEVER
 					query = "with probability >=1 " + species0Str + " >=50 WEAK-UNTIL " + speciesLast + ">=50"; // WEAK-UNTIL
 					// ALWAYS
 					query = "with probability >=1 ALWAYS " + speciesLast + ">=" + (0);
 					query = "with probability >=1 NEXT " + speciesLast + ">=" + (50);
-					query = "with probability >=1 " + speciesLast + " >=50 FOLLOWS " + species0Str + ">=50"; // second
 
+					query = "with probability >=1 " + species0Str + " >=50 UNTIL " + speciesLast + ">=50";
+					query = "with probability >=1 NEVER " + speciesLast + ">=50"; // NEVER
+					query = "with probability >=1 " + species0Str + " >=50 PRECEDES " + speciesLast + ">=50";// first
+					query = "with probability >=1 " + speciesLast + " >=50 FOLLOWS " + species0Str + ">=50"; // second
+					query = "with probability >=1 EVENTUALLY " + speciesLast + ">" + (50);
 					pQuery.validateAndAssingPQuery(query);
 
 				} catch (Exception e) {

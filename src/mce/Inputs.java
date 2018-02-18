@@ -3,6 +3,7 @@ package mce;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,13 +18,25 @@ public class Inputs {
 	private String sbmlFilePath = "";
 	private String fileName = "";
 	private String pQueryFilePath = "";
-	private String lowwerBound = "0";
-	private String upperBound = String.valueOf(Integer.MAX_VALUE - 1);
+	private String lowerBound = "0";
+	private String upperBound = "100";
 	private String simSamples = "500";// simulation samples
 	private String simDepth = "5000";// simulation depth
 	private String sbmlDirectoryPath;
 	private boolean directoryProvided = false;
 	private String outputDir = "./output";
+
+	// @formatter:off
+	static String usage =
+			"\njava -jar smcp.jar -s <SBMLFile> -q <PatternQueryFile> [-lB <lowerBound>] [-uB <upperBound>] \n"
+			+"\t<SBMLFile> \t\t SBML file path\n"
+			+"\t<PatternQueryFile> \t Pattern query file path\n"
+			+ "Optional:\n" 
+			+ "\t[-lB <lowerBound>] the lower bound for species population, it must be between (-2147483648, 2147483647) [default: 0]\n"
+			+ "\t[-uB <upperBound>] the upper bound for species population, it must be between (-2147483648, 2147483647) [default: 100]\n"
+			+ "\t[-o] output directory [default: ./output]\n" 
+			+ "\t[-h | -help] show the tool usage";
+	// @formatter:on
 
 	public Inputs(String[] arguments) {
 		manageArgs(arguments);
@@ -36,7 +49,7 @@ public class Inputs {
 		}
 
 		if (getArgument(arguments, "-s") == null) {
-			print("An sbml file should be provided");
+			print("An SBML file should be provided");
 			usage();
 			exit();
 		} else {
@@ -52,11 +65,34 @@ public class Inputs {
 		}
 
 		String optionalParamName = "-lB";
-		lowwerBound = setOptionalArguments(arguments, lowwerBound, optionalParamName);
-		optionalParamName = "-upB";
+		lowerBound = setOptionalArguments(arguments, lowerBound, optionalParamName);
+		lowerBound = setBounds(lowerBound);
+		optionalParamName = "-uB";
 		upperBound = setOptionalArguments(arguments, upperBound, optionalParamName);
+		upperBound = setBounds(upperBound);
+		// upperBound should be greater than lower bound.
+		checkBounds(lowerBound, upperBound);
+
 		optionalParamName = "-o";
 		outputDir = setOptionalArguments(arguments, outputDir, optionalParamName);
+	}
+
+	private void checkBounds(String lowerBound, String upperBound) {
+		if (Integer.parseInt(lowerBound) >= Integer.parseInt(upperBound)) {
+			print("Lower bound [-lB] " + lowerBound + " cannot be bigger than upper bound [-upB] " + upperBound);
+			usage();
+			exit();
+		}
+	}
+
+	private String setBounds(String value) {
+		Integer bound = getInteger(value);
+		if (!(Math.abs(bound) <= (Integer.MAX_VALUE - 1))) {
+			print("The bounds should be an integer value between (-2147483648, 2147483647)");
+			usage();
+			exit();
+		}
+		return String.valueOf(bound);
 	}
 
 	/**
@@ -111,10 +147,10 @@ public class Inputs {
 	}
 
 	/**
-	 * @return the lowwerBound
+	 * @return the lowerBound
 	 */
-	public String getLowwerBound() {
-		return lowwerBound;
+	public String getLowerBound() {
+		return lowerBound;
 	}
 
 	/**
@@ -159,8 +195,8 @@ public class Inputs {
 		if (optinalParamValue != null) {
 			return optinalParamValue;
 		} else {
-			log.info("Optinal parameter " + optionalParamName + " not specified, therefore the default value '"
-					+ optionalParam + "' will be used.");
+			log.info("Optional parameter " + optionalParamName + " not specified, therefore the default value '"
+					+ optionalParam + "' is used.");
 			return optionalParam;
 		}
 	}
@@ -190,15 +226,29 @@ public class Inputs {
 	}
 
 	private void usage() {
-		String usage = "Usage:\n" + "\tmce [-s] \"SBML file path\" [-q] \"Pattern based query file path\" \n"
-				+ "Optional:\n" + "\t[-lB] lower bound of molecules\n" + "\t[-upB] upper bound of molecules\n"
-				+ "\t[-o] output directory (./output is default)\n" + "for help [-h] | [-help]\n";
 		print(usage);
 	}
 
 	private void exit() {
-		log.error("The application exits.");
+		print("Exited!");
 		System.exit(1);
+	}
+
+	/**
+	 * Return the integer value of the string, if it is not integer it will return
+	 * null.
+	 * 
+	 * @param str
+	 * @return
+	 */
+	private Integer getInteger(String str) {
+		Integer number = null;
+		try {
+			number = Integer.parseInt(str);
+		} catch (NumberFormatException e) {
+			// not number
+		}
+		return number;
 	}
 
 }

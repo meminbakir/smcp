@@ -19,8 +19,9 @@ import mchecking.ModelChecker;
 import mchecking.translator.mct.prismt.PRISMT;
 
 /**
- * Scale the constants if they are not in bound of Integer. If the initial amounts of species (non-constants) are decimal, it
- * scale to integer value as long as the rescaling conserves the integer bounds.
+ * Scale the constants if they are not in bound of Integer. If the initial
+ * amounts of species (non-constants) are decimal, it scale to integer value as
+ * long as the rescaling conserves the integer bounds.
  * 
  * @author Mehmet Emin BAKIR
  *
@@ -33,16 +34,15 @@ public class Scale {
 	boolean isSpeciesNeedsScaling = false;
 	boolean isSpeciesScalable = true;
 
-	// Scale the constant species if they are not within Integer bounds.
-	private String scaleConstantsMessage;
-	private boolean isConstantsScalable = true;
+	private ModelChecker targetMC;
+	private Inputs input;
+	// // Scale the constant species if they are not within Integer bounds.
+	// private String scaleConstantsMessage;
+	// private boolean isConstantsScalable = true;
 	// The min and max base values for rescaling constant species.
 	double min = Integer.MAX_VALUE;
 	double max = Integer.MIN_VALUE;
-	boolean isConstantsWithinIntegerBounds = true;
-
-	private ModelChecker targetMC;
-	private Inputs input;
+	boolean isConstantsWithinBounds = true;
 
 	/**
 	 * @param input
@@ -53,14 +53,13 @@ public class Scale {
 		this.targetMC = targetMC;
 	}
 
-	/**
-	 * 
-	 */
-	public Scale() {
+	public Scale(Inputs input) {
+		this.input = input;
 	}
 
 	/**
-	 * If the initial amount of non-constant species are in decimal format, then they needs to be scaled to integer values.
+	 * If the initial amount of non-constant species are in decimal format, then
+	 * they needs to be scaled to integer values.
 	 * 
 	 * @param sbmlModel
 	 * @return
@@ -76,7 +75,7 @@ public class Scale {
 					+ "Therefore, the initial amount of all species will be scaled to integer value.");
 
 			// scale decimals
-			isScaledSpeciesRemainWithinIntBounds(sbmlModel, coeff);
+			isScaledSpeciesRemainWithinBounds(sbmlModel, coeff);
 		}
 		return isSpeciesScalable;
 	}
@@ -87,7 +86,7 @@ public class Scale {
 	 * @param sbmlModel
 	 * @param coeff
 	 */
-	private void isScaledSpeciesRemainWithinIntBounds(Model sbmlModel, Double coeff) {
+	private void isScaledSpeciesRemainWithinBounds(Model sbmlModel, Double coeff) {
 		for (int n = 0; n < sbmlModel.getNumSpecies(); n++) {
 			Species species = sbmlModel.getSpecies(n);
 			// if species is not constant
@@ -96,17 +95,17 @@ public class Scale {
 				// initial value can be either initialAmount or initialConcentration (exclusive)
 				double initialValue = PRISMT.getSpeciesInitialValue(species);
 				double scaled = initialValue * coeff;
-				// if scaled value is not within integer bounds then it is not possible to scale a valid value for Model
-				// checkers
-				if (Math.abs(scaled) <= Integer.MAX_VALUE) {
+				// if scaled value is not within the bounds then it is not possible to scale
+				// a valid value for Model checkers
+				if (Math.abs(scaled) <= getUpperBound()) {
 					// it is scalable.
 					continue;
 				} else {
-					String message = "The model contains species " + speciesID + " before rescaling it has initial amount "
-							+ initialValue + ". " + "After scaling to integer the initial value becomes " + scaled + ". "
-							+ "However, it is not possible the rescaled value stay within the integer bounds. "
-							+ "Therefore, model checker's do not support it. "
-							+ "Please, revise the initial amount of species.";
+					String message = "Species '" + speciesID
+							+ "' has initial amount '" + initialValue + "'. "
+							+ "After re-scaling the inital values of the species to be integer, its value became '" + scaled + "'. "
+							+ "However, the new (re-scaled) value is not within the upper bound '"+((int) getUpperBound())+"'. "
+							+ "Please, change the upper bound '-upB' limit from the command options.";
 					log.error(message);
 					setScalableMessage(message);
 					isSpeciesScalable = false;
@@ -116,11 +115,18 @@ public class Scale {
 		}
 	}
 
+	/**
+	 * @return
+	 */
+	private int getUpperBound() {
+		return Integer.valueOf(input.getUpperBound());// Integer.MAX_VALUE;
+	}
+
 	public void scaleSpeciesInitialValue(Model sbmlModel) {
 		Double coeff = getCoefficient(sbmlModel);
 		if (isSpeciesNeedsScaling && isSpeciesScalable) {
 			log.warn("The model includes species which have decimal initial amount/concentration.\n"
-					+ "However, model checker requires the intial value of species be an integer number.\n"
+					+ "However, model checker requires the initial value of species be an integer number.\n"
 					+ "Therefore, the initial amount of all species will be scaled to integer value.");
 
 			// scale decimals
@@ -130,7 +136,8 @@ public class Scale {
 	}
 
 	/**
-	 * Check the initial amount will stay within the Integer bounds, then rescale it.
+	 * Check the initial amount will stay within the Integer bounds, then rescale
+	 * it.
 	 * 
 	 * @param sbmlModel
 	 * @param coeff
@@ -161,8 +168,9 @@ public class Scale {
 	}
 
 	/**
-	 * Check if any initial amount is in decimal, if so find the max coefficient so that all species initial amount can be
-	 * rescaled to integer
+	 * Check if any initial amount is in decimal, if so find the max coefficient so
+	 * that all species initial amount can be rescaled to remain within upper and
+	 * lower bounds
 	 * 
 	 * @param sbmlModel
 	 * @return
@@ -194,9 +202,9 @@ public class Scale {
 		return coeff;
 	}
 
-
 	/**
-	 * Get the coefficient number which multiplication with initialAmount will convert it to Integer.
+	 * Get the coefficient number which multiplication with initialAmount will
+	 * convert it to Integer.
 	 * 
 	 * @param initialAmount
 	 */
@@ -210,7 +218,7 @@ public class Scale {
 			}
 			i++;
 
-		} while (Math.abs(coeff) <= Integer.MAX_VALUE);
+		} while (Math.abs(coeff) <= getUpperBound());
 		return coeff;
 	}
 
@@ -240,7 +248,8 @@ public class Scale {
 	/**
 	 * Check whether constants values are within the integer bounds. <br/>
 	 * If not it, then it will scale it to fit the integer bounds.<br/>
-	 * The new value does not have to be integer, but should remain within Integer bounds.
+	 * The new value does not have to be integer, but should remain within Integer
+	 * bounds.
 	 * 
 	 * @param sbmlModel
 	 */
@@ -333,7 +342,8 @@ public class Scale {
 	}
 
 	/**
-	 * Check if constants values are within the integer bounds. If not it will give warning.
+	 * Check if constants values are within the integer bounds. If not it will give
+	 * warning.
 	 * 
 	 * @param sbmlModel
 	 * @return true, if all constants are within the integer bounds.
@@ -406,7 +416,7 @@ public class Scale {
 			}
 		}
 
-		return isConstantsWithinIntegerBounds;
+		return isConstantsWithinBounds;
 	}
 
 	/**
@@ -431,14 +441,15 @@ public class Scale {
 	private void updateMinMaxAndCheckBounds(String constName, double value) {
 		updateMinMax(value);
 		if (!isWithinIntegerBound(value)) {
-			isConstantsWithinIntegerBounds = false;
+			isConstantsWithinBounds = false;
 			String message = notInIntegerBoundsMessage(constName, value);
 			log.warn(message);
 		}
 	}
 
 	/**
-	 * The message for warning the constant is larger or smaller than the integer bound
+	 * The message for warning the constant is larger or smaller than the integer
+	 * bound
 	 * 
 	 * @param constName
 	 * @param size
@@ -446,7 +457,7 @@ public class Scale {
 	 */
 	private String notInIntegerBoundsMessage(String constName, double size) {
 		return constName + " has " + size + " which is not withint the Integer bounds [" + Integer.MIN_VALUE + ", "
-				+ Integer.MAX_VALUE + "]. Therefore, it will be scaled to stay within the limits.";
+				+ getUpperBound() + "]. Therefore, it will be scaled to stay within the limits.";
 	}
 
 	/**
@@ -454,7 +465,7 @@ public class Scale {
 	 * @return
 	 */
 	private boolean isWithinIntegerBound(double value) {
-		return (Math.abs(value) <= Integer.MAX_VALUE);
+		return (Math.abs(value) <= getUpperBound());
 	}
 
 	/**
@@ -470,7 +481,8 @@ public class Scale {
 	}
 
 	/**
-	 * Scale the value to remain within the Integer bounds, result does not have to be an integer.
+	 * Scale the value to remain within the Integer bounds, result does not have to
+	 * be an integer.
 	 * 
 	 * @param constName
 	 * @param value
@@ -485,8 +497,8 @@ public class Scale {
 	}
 
 	private double scaleIntBounds(Double value, Double min, Double max) {
-		double limitMin = Integer.MIN_VALUE + 1;
-		double limitMax = Integer.MAX_VALUE - 1;
+		double limitMin = getLowerBound();
+		double limitMax = getUpperBound();
 
 		// Set the bound min(limitMin) to min if min is within integer limit
 		if (min > limitMin) {
@@ -502,6 +514,10 @@ public class Scale {
 		}
 
 		return scale(value, min, max, limitMin, limitMax);
+	}
+
+	private double getLowerBound() {
+		return Double.parseDouble(input.getLowerBound());
 	}
 
 	/**

@@ -101,7 +101,7 @@ public class Output {
 		}
 
 		result += Utils.lineSeparator();
-		log.info(result);
+		log.debug(result);
 		Utils.out(result);
 
 		// mrmc it produces its output with command line, in order to not
@@ -114,7 +114,8 @@ public class Output {
 
 	private String getInputDetails() {
 		String result = "Starting Time:" + startTime + "\n" + "File Name:" + fileName + "\n" + "Query ID:" + queryID
-				+ " (line, " + lineNumber + ")\n" + "Selected Model Checker: " + mcType + "\nPattern Query:" + pQuery + "\n";
+				+ " (line, " + lineNumber + ")\n" + "Selected Model Checker: " + mcType + "\nPattern Query:" + pQuery
+				+ "\n";
 		return result;
 	}
 
@@ -131,8 +132,9 @@ public class Output {
 			}
 		} else {
 			if (hasExtTool) {
-				result += "Elapsed time = " + "External tool time: " + externalToolTime + " (ns) + " + "Model Checker time: "
-						+ verificationTime + " (ns) Total time: " + (externalToolTime + verificationTime) + " (ns))\n";
+				result += "Elapsed time = " + "External tool time: " + externalToolTime + " (ns) + "
+						+ "Model Checker time: " + verificationTime + " (ns) Total time: "
+						+ (externalToolTime + verificationTime) + " (ns))\n";
 			} else
 				result += "Elapsed Time:" + verificationTime + " (ns)\n";
 		}
