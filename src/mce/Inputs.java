@@ -3,7 +3,6 @@ package mce;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,10 +27,11 @@ public class Inputs {
 
 	// @formatter:off
 	static String usage =
-			"\njava -jar smcp.jar -s <SBMLFile> -q <PatternQueryFile> [-lB <lowerBound>] [-uB <upperBound>] \n"
-			+"\t<SBMLFile> \t\t SBML file path\n"
-			+"\t<PatternQueryFile> \t Pattern query file path\n"
-			+ "Optional:\n" 
+			"\njava -jar smcp.jar -s <SBMLFile> -q <PatternQueryFile> [-predictOnly <true>]  [-lB <lowerBound>] [-uB <upperBound>] \n"
+			+ "\t<SBMLFile> \t\t SBML file path\n"
+			+ "\t<PatternQueryFile> \t Pattern query file path\n"
+			+ "Optional:\n" //TODO implement predictOnly
+			+ "\t[-predictOnly <true|false>] should just predict the fastest SMC tool, if set true it the tool will not perform verification [default: false]"
 			+ "\t[-lB <lowerBound>] the lower bound for species population, it must be between (-2147483648, 2147483647) [default: 0]\n"
 			+ "\t[-uB <upperBound>] the upper bound for species population, it must be between (-2147483648, 2147483647) [default: 100]\n"
 			+ "\t[-o] output directory [default: ./output]\n" 
