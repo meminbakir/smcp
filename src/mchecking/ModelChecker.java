@@ -11,6 +11,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import mce.Inputs;
 import mchecking.enums.ExtTTypes;
 import mchecking.enums.MCTypes;
 import mchecking.enums.Pattern;
@@ -28,7 +29,7 @@ public class ModelChecker {
 	private MCTypes type = null;
 	private String name = null;
 	private String appPath = null;
-	private String outPutDir = null;
+	private String outputDir = null;
 	private boolean hasExternalTool = false;
 	private ExternalTool externalTool = null;
 	private boolean usesPrism = true;
@@ -115,23 +116,28 @@ public class ModelChecker {
 	}
 
 	/**
-	 * @return the outPutDir
+	 * @param input
+	 * @return the outputDir
 	 */
-	public String getOutPutDir() {
-		return outPutDir;
+	public String getOutputDir(Inputs input) {
+		if(outputDir==null)
+			outputDir = input.getOutputDir() + File.separator + "translated" + File.separator + getType();
+		return outputDir;
 	}
 
 	/**
 	 * @param outPutDir
 	 *            the outPutDir to set
 	 */
-	public void setOutPutDir(String outPutDir) {
-		if (outPutDir.isEmpty() || outPutDir == null) {
-			outPutDir = System.getProperty("user.dir") + File.separator + "models" + File.separator + "translated"
-					+ File.separator + getName();
-		}
-		this.outPutDir = outPutDir;
-	}
+	// public void setOutPutDir(String outPutDir) {
+	// if (outPutDir.isEmpty() || outPutDir == null) {
+	// outPutDir = System.getProperty("user.dir") + File.separator + "models" +
+	// File.separator + "translated"
+	// + File.separator + getName();
+	// }
+	//
+	// this.outPutDir = outPutDir;
+	// }
 
 	/**
 	 * @param modelExtension
@@ -182,8 +188,8 @@ public class ModelChecker {
 	}
 
 	/**
-	 * Check either MChecker it self or its External tool uses PRISM, If it is so, we will check prism keywords. Currently
-	 * only MC2 has choice to not use PRISM.
+	 * Check either MChecker it self or its External tool uses PRISM, If it is so,
+	 * we will check prism keywords. Currently only MC2 has choice to not use PRISM.
 	 * 
 	 * @return the usesPrism
 	 */
@@ -191,9 +197,9 @@ public class ModelChecker {
 		usesPrism = true;
 		if (type == MCTypes.MC2) {
 			if (externalTool != null)
-			if (externalTool.getExtTType() != ExtTTypes.PRISM) {
-				usesPrism = false;
-			}
+				if (externalTool.getExtTType() != ExtTTypes.PRISM) {
+					usesPrism = false;
+				}
 		}
 		return usesPrism;
 	}

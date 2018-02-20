@@ -39,7 +39,7 @@ public class MCT {
 			String mcModel = imct.translate(input, sbml);
 			if (mcModel != null) {
 				log.info("Model successfully translated to '" + targetMC.getType() + "' input language.");
-				mcModelPath = targetMC.getOutPutDir() + File.separator + input.getFileName();
+				mcModelPath = targetMC.getOutputDir(input) + File.separator + input.getFileName();
 				// if mc has external tool then use its model extension
 				String modelExtesion = ".";
 				if (targetMC.isHasExternalTool()) {
@@ -51,7 +51,7 @@ public class MCT {
 				Utils.write2File(mcModelPath, mcModel, false);
 
 			} else {
-				Utils.out("Translation failed for SBML model:" + input.getFileName());
+				log.error("Translation failed for SBML model:" + input.getFileName());
 			}
 		}
 		return mcModelPath;
@@ -112,7 +112,7 @@ public class MCT {
 				//
 				// Utils.write2File(mcModelPath, mcModel, false);
 				log.info("Model successfully translated to '" + targetMC + "' input language.");
-				mcModelPath = targetMC.getOutPutDir() + File.separator + input.getFileName();
+				mcModelPath = targetMC.getOutputDir(input) + File.separator + input.getFileName();
 				// if mc has external tool then use its model extension
 				String modelExtesion = ".";
 				if (targetMC.isHasExternalTool()) {

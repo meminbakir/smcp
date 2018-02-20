@@ -32,29 +32,34 @@ public class PLASMAVerify extends Verify {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see mchecking.verify.IVerify#verify(java.lang.String, mchecking.translator.qt.MCQuery)
+	 * @see mchecking.verify.IVerify#verify(java.lang.String,
+	 * mchecking.translator.qt.MCQuery)
 	 */
 	@Override
 	public Output verify(String mcModelFilePath, MCQuery mcQuery) throws IOException, InterruptedException {
 		this.output = new Output(mcQuery);
 		this.output.startTime = Utils.getDateandTime(true, true, null);
-		// Plasma requires properties be read from a file, we need to save queries first.
+		// Plasma requires properties be read from a file, we need to save queries
+		// first.
 		String customQueryFilePath = this.saveQuery2File(mcQuery.getTranslatedQuery(), ".bltl");
 
 		Path classPath = Paths.get(System.getProperty("user.dir"));
 		// relative path of model and query file regarding class path
 		Path mcModelRelPath = classPath.relativize(Paths.get(mcModelFilePath));
 		Path customQueryRelPath = classPath.relativize(Paths.get(customQueryFilePath));
-		// Command Example: java -jar fr.inria.plasmalab.plasmalab-1.3.2.jar -t -a montecarlo -A"Total samples"=50 -m
+		// Command Example: java -jar fr.inria.plasmalab.plasmalab-1.3.2.jar -t -a
+		// montecarlo -A"Total samples"=50 -m
 		// NaCL.rml:rml --format csv -r liveness.bltl:bltl
 		// String totalSample = "-A\"Total samples\"=1000";
-		// String[] mcCommand = {"java", "-jar", MCPropsLoader.getAppPath(), "-t", "-a", "montecarlo",totalSample, "-m",
-		// mcModelRelPath + ":rml", "--format", "csv", "-r", customQueryRelPath + ":bltl" };
+		// String[] mcCommand = {"java", "-jar", MCPropsLoader.getAppPath(), "-t", "-a",
+		// "montecarlo",totalSample, "-m",
+		// mcModelRelPath + ":rml", "--format", "csv", "-r", customQueryRelPath +
+		// ":bltl" };
 		try {
 			// PLASMA parameters act differently in windows and linux
 			String plasmaCommand = "java -jar " + this.targetMC.getAppPath() + " -t " + "-a " + "montecarlo "
-					+ "-A\"Total samples\"=" + this.input.getSimSamples() + " -m " + mcModelRelPath + ":rml " + "--format "
-					+ "csv " + "-r " + customQueryRelPath + ":bltl";
+					+ "-A\"Total samples\"=" + this.input.getSimSamples() + " -m " + mcModelRelPath + ":rml "
+					+ "--format " + "csv " + "-r " + customQueryRelPath + ":bltl";
 			OS os = Utils.getOS();
 			switch (os) {
 			case WINDOWS:
@@ -65,8 +70,8 @@ public class PLASMAVerify extends Verify {
 				String mcCommand[] = { "/bin/sh", "-c", plasmaCommand };
 				Utils.runCommand(mcCommand, this.output);
 				if ((os != OS.LINUX)) {
-					String warning = "Your operating system(" + os + ") not tested, the app just tested with" + OS.WINDOWS
-							+ "and " + OS.LINUX;
+					String warning = "Your operating system(" + os + ") not tested, the app just tested with"
+							+ OS.WINDOWS + "and " + OS.LINUX;
 					log.warn(warning);
 				}
 				break;
@@ -80,7 +85,8 @@ public class PLASMAVerify extends Verify {
 	}
 
 	/**
-	 * Saves a query to file, if needed. This is part of verification process (not output)
+	 * Saves a query to file, if needed. This is part of verification process (not
+	 * output)
 	 * 
 	 * @param input
 	 * 
@@ -92,7 +98,7 @@ public class PLASMAVerify extends Verify {
 
 	private String saveQuery2File(String customQuery, String extension) {
 		// e.g. models/translated/plasma/NaCL.bltl
-		String outputFilePath = this.targetMC.getOutPutDir() + File.separator + this.input.getFileName() + extension;
+		String outputFilePath = targetMC.getOutputDir(input) + File.separator + this.input.getFileName() + extension;
 		Utils.write2File(outputFilePath, customQuery, false);
 		return outputFilePath;
 	}

@@ -66,7 +66,7 @@ public class MCPropsLoader {
 								}
 							}
 						}
-						modelChecker.setOutPutDir(mcElement.getElementsByTagName("outputDir").item(0).getTextContent());
+//						modelChecker.setOutPutDir(mcElement.getElementsByTagName("outputDir").item(0).getTextContent());
 
 						// If model has external tools, then initialize the external properties.
 						String strHasExternalTool = mcElement.getAttribute("hasExternalTool");

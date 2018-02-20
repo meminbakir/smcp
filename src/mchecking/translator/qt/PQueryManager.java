@@ -45,7 +45,6 @@ public class PQueryManager {
 		try {
 			// check if all queries are valid
 			// this.validatePQueries(pQueryFilePath);
-
 			List<String> strPQueries = Files.readAllLines(Paths.get(pQueryFilePath), Charset.defaultCharset());
 			if (strPQueries.size() > 0) {
 				pQueryList = new ArrayList<PQuery>();

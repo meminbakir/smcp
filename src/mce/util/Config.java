@@ -44,11 +44,12 @@ public class Config {
 			// File projectPath = new
 			// File(MCE.class.getProtectionDomain().getCodeSource().getLocation().getPath());
 			// String propertiesPath = projectPath.getParent();
-			
-			//TODO: the following line was active was working for linux and windows, check if the new 
-			//one works too. Especially for jar files
+
+			// TODO: the following line was active was working for linux and windows, check
+			// if the new
+			// one works too. Especially for jar files
 			// String fileName = projPath + File.separator + "config.properties";//
-			String fileName = "./" + File.separator + "config.properties";
+			String fileName = System.getProperty("user.dir") + File.separator + "config.properties";
 			// System.out.println("Path for Config:" + fileName);
 			// input = Config.class.getClassLoader().getResourceAsStream(fileName);
 			// if (input == null) {

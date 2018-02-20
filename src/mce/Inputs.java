@@ -23,20 +23,39 @@ public class Inputs {
 	private String simDepth = "5000";// simulation depth
 	private String sbmlDirectoryPath;
 	private boolean directoryProvided = false;
-	private String outputDir = "./output";
+	private String outputDir = null;
+	private boolean predict = true;
+	private boolean verify = false;
 
-	// @formatter:off
-	static String usage =
-			"\njava -jar smcp.jar -s <SBMLFile> -q <PatternQueryFile> [-predictOnly <true>]  [-lB <lowerBound>] [-uB <upperBound>] \n"
-			+ "\t<SBMLFile> \t\t SBML file path\n"
-			+ "\t<PatternQueryFile> \t Pattern query file path\n"
-			+ "Optional:\n" //TODO implement predictOnly
-			+ "\t[-predictOnly <true|false>] should just predict the fastest SMC tool, if set true it the tool will not perform verification [default: false]"
-			+ "\t[-lB <lowerBound>] the lower bound for species population, it must be between (-2147483648, 2147483647) [default: 0]\n"
-			+ "\t[-uB <upperBound>] the upper bound for species population, it must be between (-2147483648, 2147483647) [default: 100]\n"
-			+ "\t[-o] output directory [default: ./output]\n" 
-			+ "\t[-h | -help] show the tool usage";
-	// @formatter:on
+	/**
+	 * @return the verify
+	 */
+	public boolean isVerify() {
+		return verify;
+	}
+
+	/**
+	 * @param verify
+	 *            the verify to set
+	 */
+	public void setVerify(boolean verify) {
+		this.verify = verify;
+	}
+
+	/**
+	 * @return the predict
+	 */
+	public boolean isPredict() {
+		return predict;
+	}
+
+	/**
+	 * @param predict
+	 *            the predict to set
+	 */
+	public void setPredict(boolean predict) {
+		this.predict = predict;
+	}
 
 	public Inputs(String[] arguments) {
 		manageArgs(arguments);
@@ -47,7 +66,6 @@ public class Inputs {
 			usage();
 			exit();
 		}
-
 		if (getArgument(arguments, "-s") == null) {
 			print("An SBML file should be provided");
 			usage();
@@ -64,7 +82,11 @@ public class Inputs {
 			pQueryFilePath = getArgument(arguments, "-q");
 		}
 
-		String optionalParamName = "-lB";
+		String optionalParamName = "-action";
+		String action = setOptionalArguments(arguments, "predict", optionalParamName);
+		setActionArgument(action);
+
+		optionalParamName = "-lB";
 		lowerBound = setOptionalArguments(arguments, lowerBound, optionalParamName);
 		lowerBound = setBounds(lowerBound);
 		optionalParamName = "-uB";
@@ -72,9 +94,30 @@ public class Inputs {
 		upperBound = setBounds(upperBound);
 		// upperBound should be greater than lower bound.
 		checkBounds(lowerBound, upperBound);
-
+		//simulation settings
+		optionalParamName = "-simSamples";
+		simSamples = setOptionalArguments(arguments, simSamples, optionalParamName);
+		optionalParamName = "-simDepth";
+		simDepth = setOptionalArguments(arguments, simDepth, optionalParamName);
+		
 		optionalParamName = "-o";
 		outputDir = setOptionalArguments(arguments, outputDir, optionalParamName);
+	}
+
+	private void setActionArgument(String action) {
+		// if predicts then set predict true and verify to false
+		if (action.equals("predict")) {
+			setPredict(true);
+			setVerify(false);
+		} else if (action.equals("verify")) {
+			setPredict(false);
+			setVerify(true);
+		} else {
+			print("-action argument is not set correctly.");
+			usage();
+			exit();
+		}
+
 	}
 
 	private void checkBounds(String lowerBound, String upperBound) {
@@ -182,7 +225,10 @@ public class Inputs {
 	}
 
 	public String getOutputDir() {
-		return outputDir + File.separator;
+		if (outputDir == null) {
+			outputDir = System.getProperty("user.dir") + File.separator + "output";// "./output";
+		}
+		return outputDir;
 	}
 
 	public void setOutputDir(String outputDir) {
@@ -226,11 +272,44 @@ public class Inputs {
 	}
 
 	private void usage() {
-		print(usage);
+
+		// @formatter:off
+		StringBuffer us = new StringBuffer ("\njava -jar smcp.jar -s <SBMLFile> -q <PatternQueryFile> [-action <predict|verify>] [-lB <lowerBound>] [-uB <upperBound>]"
+				+ "[-simSamples <simulation_samples>] [-simDepth <simulation_depth>]\n");
+//		us.append(String.format("%24s: %s\n"));
+		us.append(String.format("%-26s: %s\n","<SBMLFile>", "SBML file path."));
+		us.append(String.format("%-26s: %s\n","<PatternQueryFile>","Pattern query file path."));
+		us.append(String.format("Optional:\n"));
+		us.append(String.format("%-26s: %s", "[-action <predict|verify>]", "should predict the SMC tool only, or should perform verification too [default: predict].\n"));
+		us.append(String.format("%26s: %s", "predict","predict the suitable SMC tool.\n"));
+		us.append(String.format("%26s: %s", "verify","it first predicts the suitable SMC tool then verifies the model with the predicted tool.\n"));
+		us.append(String.format("%-26s: %s\n", "[-lB <lowerBound>]","the lower bound for species population. It must be between (-2147483648, 2147483647) [default: 0]"));
+		us.append(String.format("%-26s: %s\n","[-uB <upperBound>]","the upper bound for species population. It must be between (-2147483648, 2147483647) [default: 100]"));
+		us.append(String.format("%-34s: %s\n","[-simSamples <simulation_samples>]","number of simulation samples (paths) [default: 500]."));
+		us.append(String.format("%-34s: %s\n","[-simDepth <simulation_depth>]","the depth of each simulation sample [default: 5000]."));
+		us.append(String.format("%-26s: %s\n","[-o]","output directory [default: ./output]"));
+		us.append(String.format("%-26s: %s\n","[-h | -help]","show the tool usage."));
+		us.append(String.format("Example usage: java -jar smcp.jar -s /yourPath/NaCl.sbml -q /yourPath/query.pq -action predict -lB 0 -uB 1000 -simSamples 1000 -simDepth 10000"));
+		
+//		String usage =
+//				"\njava -jar smcp.jar [-action <predict|verify>] -s <SBMLFile> -q <PatternQueryFile> [-lB <lowerBound>] [-uB <upperBound>]\n"
+//				+ "-action <predict|verify> should predict the SMC tool only, or should perform verification too [default: predict].\n"//
+//				+ "\t\t'predict' option predicts the SMC tool.\n"
+//				+ "\t\t'verify' option enables the verification of model with the predicted SMC tool. It first predicts the SMC tool then performs verification."
+//				+ "\t<SBMLFile> \t\t SBML file path\n"
+//				+ "\t<PatternQueryFile> \t Pattern query file path\n"
+//				+ "Optional:\n" //TODO implement predictOnly
+//				+ "\t[-predict] just predict the fastest SMC tool and does not perform verification [default: false]"
+//				+ "\t[-lB <lowerBound>] the lower bound for species population, it must be between (-2147483648, 2147483647) [default: 0]\n"
+//				+ "\t[-uB <upperBound>] the upper bound for species population, it must be between (-2147483648, 2147483647) [default: 100]\n"
+//				+ "\t[-o] output directory [default: ./output]\n" 
+//				+ "\t[-h | -help] show the tool usage";
+		// @formatter:on
+		print(us.toString());
 	}
 
 	private void exit() {
-		print("Exited!");
+		// print("Exited!");
 		System.exit(1);
 	}
 

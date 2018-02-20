@@ -4,6 +4,7 @@
 package output;
 
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,9 +49,10 @@ public class Output {
 
 	// this includes remained outputs, includes comment and not verifiable
 	// output
-	public String result = "\t----- Verification  Result   -----\n";
+	public String result = "";
 	private String queryTranslationNote = "";
 	public String startTime;
+	private String predictResultMessage;
 
 	public Output() {
 	}
@@ -68,10 +70,14 @@ public class Output {
 	/**
 	 * @return the verification directory
 	 */
-	public String getVerificationdirectoryPath() {
+	public String getVerificationdirectoryPath(Inputs input) {
+		//
+		// String verificationDirectoryPath = System.getProperty("user.dir") +
+		// File.separator + "models" + File.separator
+		// + verificationDirectory + File.separator;
 
-		String verificationDirectoryPath = System.getProperty("user.dir") + File.separator + "models" + File.separator
-				+ verificationDirectory + File.separator;
+		String verificationDirectoryPath = input.getOutputDir() + File.separator + verificationDirectory
+				+ File.separator;
 		return verificationDirectoryPath;
 	}
 
@@ -89,7 +95,7 @@ public class Output {
 	 */
 	public void setVerificationResultFPath(Inputs input) {
 		fileName = input.getFileName();
-		verificationResultFPath = getVerificationdirectoryPath() + mcType + "_" + input.getFileName() + "." + "result";
+		verificationResultFPath = getVerificationdirectoryPath(input) + mcType + "_" + fileName + "." + "result.txt";
 	}
 
 	public void print() {
@@ -112,17 +118,32 @@ public class Output {
 			Utils.write2File(verificationResultFPath, result, true);
 	}
 
+	/**
+	 * If command set to predict which means get the SMC prediction only and does
+	 * not perform verification. Then we will show only The prediction result.
+	 */
+	public void printPredictionResult() {
+		log.debug(predictResultMessage);
+		Utils.out(predictResultMessage);
+	}
+
 	private String getInputDetails() {
-		String result = "Starting Time:" + startTime + "\n" + "File Name:" + fileName + "\n" + "Query ID:" + queryID
-				+ " (line, " + lineNumber + ")\n" + "Selected Model Checker: " + mcType + "\nPattern Query:" + pQuery
-				+ "\n";
+		// String result = "\n\t----- Execution Summary -----\n" + "Starting Time: " +
+		// startTime + "\n" + "File Name: "
+		// + fileName + "\n" + "Query ID: " + queryID + " (line, " + lineNumber + ")\n"
+		// + "Selected Model Checker: "
+		// + mcType + "\nPattern Query: " + pQuery + "\n";
+
+		String result = "\n\t----- Execution Summary   -----\n" + "Starting Time: " + startTime + "\n" + "File Name: "
+				+ fileName + "\n" + "Predicted Model Checker: " + mcType + "\nPattern Query: " + pQuery + "\n";
 		return result;
 	}
 
 	private String getVerificationResult() {
 
-		String result = "Translated Query:" + translatedQuery
-				+ (queryTranslationNote.isEmpty() ? "" : ", Note:" + queryTranslationNote) + "\n";
+		String result = "Translated Query: " + translatedQuery + "\n";
+		// + (queryTranslationNote.isEmpty() ? "" : ", Note: " + queryTranslationNote) +
+		// "\n";
 		if (isError) {
 			result += "Elapsed Time: N/A \n";
 			result += "\t-----   Error Details!   -----\n" + error;
@@ -132,15 +153,16 @@ public class Output {
 			}
 		} else {
 			if (hasExtTool) {
-				result += "Elapsed time = " + "External tool time: " + externalToolTime + " (ns) + "
-						+ "Model Checker time: " + verificationTime + " (ns) Total time: "
-						+ (externalToolTime + verificationTime) + " (ns))\n";
+				result += "Elapsed time = " + "External tool time: " + TimeUnit.NANOSECONDS.toSeconds(externalToolTime)
+						+ " (sec) + " + "Model Checker time: " + TimeUnit.NANOSECONDS.toSeconds(verificationTime)
+						+ " (sec) Total time: " + TimeUnit.NANOSECONDS.toSeconds((externalToolTime + verificationTime))
+						+ " (sec))\n";
 			} else
-				result += "Elapsed Time:" + verificationTime + " (ns)\n";
+				result += "Elapsed Time: " + TimeUnit.NANOSECONDS.toSeconds(verificationTime) + " (sec)\n";
 		}
-		result += this.result;
+		result += "\t----- " + mcType + " Verification Output   -----\n";
 		result += verResult;
-
+		// result+="----- Verification Ended -----";
 		return result;
 	}
 
@@ -148,6 +170,10 @@ public class Output {
 	public void printError() {
 		log.error(error);
 		Utils.out(error);
+	}
+
+	public void setPredictResult(String message) {
+		predictResultMessage = message;
 	}
 
 }

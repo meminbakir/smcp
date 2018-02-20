@@ -49,7 +49,7 @@ public class ManageTests {
 		MCTypes[] mcTypes = null;
 		// mcTypes = new MCTypes[] { MCTypes.PRISM, MCTypes.PLASMA,
 		// MCTypes.YMER, MCTypes.MRMC, MCTypes.MC2 };
-		mcTypes = new MCTypes[] { MCTypes.PRISM };//, MCTypes.PLASMA
+		mcTypes = new MCTypes[] { MCTypes.PRISM};//MCTypes.PRISM, MCTypes.PLASMA
 		// mcTypes = new MCTypes[] { MCTypes.MRMC, MCTypes.MC2, MCTypes.YMER };
 		// mcTypes = new MCTypes[] { MCTypes.PRISM, MCTypes.MC2 };
 

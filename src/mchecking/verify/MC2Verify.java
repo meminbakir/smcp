@@ -190,7 +190,8 @@ public class MC2Verify extends Verify {
 	 */
 	private String saveQuery2File(String customQuery, String extension) {
 		// e.g. models/translated/plasma/NaCL.bltl
-		String outputFilePath = targetMC.getOutPutDir() + File.separator + input.getFileName() + extension;
+//		String outputFilePath = targetMC.getOutPutDir() + File.separator + input.getFileName() + extension;
+		String outputFilePath = targetMC.getOutputDir(input) + File.separator + input.getFileName() + extension;
 		Utils.write2File(outputFilePath, customQuery, false);
 		return outputFilePath;
 	}

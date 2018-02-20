@@ -9,7 +9,8 @@ import org.junit.BeforeClass;
 //import org.sbml.libsbml.SBMLReader;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.SBMLDocument;
-import org.sbml.jsbml.SBMLReader;
+
+import mce.MySBMLReader;
 
 /**
  * @author Mehmet Emin BAKIR
@@ -38,7 +39,7 @@ public class GraphTests {
 		file = "77_BIOMD0000000317.xml.ssa.sbml";
 		// file="C:\\Users\\Mehmet\\OneDrive\\git\\mce\\mce\\models\\sbml\\EnzymaticReaction3.xml";
 		String sbmlFilePath = path + file;
-		SBMLReader reader = new SBMLReader();
+		MySBMLReader reader = new MySBMLReader();
 		SBMLDocument document = reader.readSBML(sbmlFilePath);
 		Model sbmlModel1 = document.getModel();
 		if (sbmlModel1 != null)

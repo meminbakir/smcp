@@ -3,6 +3,8 @@ package mce;
 import java.util.List;
 
 import org.sbml.jsbml.SBMLDocument;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import mce.util.Utils;
 import mchecking.MCheck;
@@ -19,20 +21,21 @@ import performance.ManageTests;
  *
  */
 public class Composer {
+	private static final Logger log = LoggerFactory.getLogger(Composer.class);
 
 	public Output compose(Inputs input, SBMLDocument sbml, PQuery pQuery) {
 
 		List<PatternProps> patternPropsList = null;
 
-		Utils.out("Extracting topological features...");
+		log.info("Extracting topological features...");
 
 		patternPropsList = new TopologyManager().getTopologicalProperties(sbml, pQuery);
-		Utils.out("Topological features calculation finished.");
+		log.info("Topological features calculation finished.");
 		Output output = new Output();
 
 		// Run all model checkers, for test purpose.
-		 output = testAllMCheckers(input, sbml, pQuery, patternPropsList);
-//		output = testOneModelChecker(input, sbml, pQuery, patternPropsList);
+		// output = testAllMCheckers(input, sbml, pQuery, patternPropsList);
+		output = testOneModelChecker(input, sbml, pQuery, patternPropsList);
 
 		return output;
 	}
@@ -64,12 +67,16 @@ public class Composer {
 	private Output testOneModelChecker(Inputs input, SBMLDocument sbml, PQuery pQuery,
 			List<PatternProps> patternPropsList) {
 		ModelChecker targetMC = new MLearning().estimateMChecker(patternPropsList, pQuery);
-		// TODO 04.02.2018 Uncommented 2 lines
-		System.out.println("Model" + input.getFileName() + " predicted MC " + targetMC.getType());
-		Output output = new MCheck().modelCheck(input, sbml, targetMC, pQuery);
+		Output output = null;
+		if (input.isVerify()) {
+			output = new MCheck().modelCheck(input, sbml, targetMC, pQuery);
+		} else {
+			output = new Output();
+			String message = String.format("The fastest SMC prediction for model: %s and pattern: %s is: %s",
+					input.getFileName(), pQuery.getPatterns().get(1), targetMC.getType());
+			output.setPredictResult(message);
+		}
 		return output;
-		// TODO 04.02.2018 commented
-		// return null;
 	}
 
 	/**

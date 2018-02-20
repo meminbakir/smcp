@@ -1,6 +1,7 @@
 package modify;
 
 import java.io.File;
+import java.io.PrintStream;
 
 import org.sbml.jsbml.ASTNode;
 import org.sbml.jsbml.Compartment;
@@ -13,6 +14,10 @@ import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.SBMLWriter;
 import org.sbml.jsbml.Species;
 import org.sbml.jsbml.SpeciesReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import mce.MySBMLReader;
 
 //import org.sbml.libsbml.ASTNode;
 //import org.sbml.libsbml.Compartment;
@@ -31,51 +36,49 @@ import mce.util.Utils;
 
 public class Modifier {
 	static int sbmlLevel, sbmlVersion;
+	private static final Logger log = LoggerFactory.getLogger(Modifier.class);
 
-	public static boolean isApproriate4Translation(String sbmlFilePath) {
+	public static boolean isApproriate4Translation(String sbmlFilePath) throws Exception {
 		boolean isValid = true;
 		String errors = "";
-		try {
-			SBMLReader reader = new SBMLReader();
-			SBMLDocument document = reader.readSBML(sbmlFilePath);
-			if (document.getNumErrors() > 0) {
-				isValid = false;
-				errors += "SBML document has following errors, Please correct them!\n";
-				for (int i = 0; i < document.getNumErrors(); i++) {
-					errors += document.getError(i).getMessage() + "\n";
-				}
-				isValid = false;
-			}
-			Model sbmlModel = document.getModel();
-			if (sbmlModel == null) {
-				errors += "There is no a model in the SBML document!\n";
-				isValid = false;
-			}
-			long numSpecies = sbmlModel.getNumSpecies();
-			if (numSpecies == 0) {
-				errors += "No species are defined.\n";
-				isValid = false;
-			}
-			// Check if kinetic formula is okay
-			long numReactions = sbmlModel.getNumReactions();
-			if (numReactions == 0) {
-				errors += "No Reactions are defined.\n";
-				isValid = false;
-			}
-			if (isValid) {
-				Utils.out(sbmlFilePath + " does not have error. Ready for modification.");
-			} else {
-				Utils.out("SBML file '" + sbmlFilePath + "' contains following problems.\n" + errors);
-			}
+		MySBMLReader reader = new MySBMLReader();
+		SBMLDocument document = reader.readSBML(sbmlFilePath);
 
-		} catch (Exception e) {
-			e.printStackTrace();
+		if (document.getNumErrors() > 0) {
+			isValid = false;
+			errors += "SBML document has following errors, Please correct them!\n";
+			for (int i = 0; i < document.getNumErrors(); i++) {
+				errors += document.getError(i).getMessage() + "\n";
+			}
+			isValid = false;
+		}
+		Model sbmlModel = document.getModel();
+		if (sbmlModel == null) {
+			errors += "There is no a model in the SBML document!\n";
+			isValid = false;
+		}
+		long numSpecies = sbmlModel.getNumSpecies();
+		if (numSpecies == 0) {
+			errors += "No species are defined.\n";
+			isValid = false;
+		}
+		// Check if kinetic formula is okay
+		long numReactions = sbmlModel.getNumReactions();
+		if (numReactions == 0) {
+			errors += "No Reactions are defined.\n";
+			isValid = false;
+		}
+		if (isValid) {
+			log.debug(sbmlFilePath + " does not have error. Ready for modification.");
+		} else {
+			log.error("SBML file '" + sbmlFilePath + "' contains following problems.\n" + errors);
 		}
 
 		return isValid;
 	}
 
 	public static String modify(File rawFile, String targetDir) {
+		log.info("Modifying the model for prediction.");
 		String toPath = null;
 		try {
 			// If target directory is not exist, then create it.
@@ -84,8 +87,8 @@ public class Modifier {
 				Utils.out("The " + targetDir + " directory is not exist, we are making it...");
 				directory.mkdir();
 			}
-			toPath = targetDir + rawFile.getName() + ".modified.sbml";
-			SBMLReader reader = new SBMLReader();
+			toPath = targetDir + File.separator + rawFile.getName() + ".modified.sbml";
+			MySBMLReader reader = new MySBMLReader();
 			SBMLWriter writer = new SBMLWriter();
 
 			// read document
@@ -106,8 +109,9 @@ public class Modifier {
 			// write file back
 			writer.writeSBMLToFile(to, toPath);
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.error(ex.getMessage(),ex);
 		}
+		log.debug("Modification completed.\nThe modified file written out to : " + toPath);
 		return toPath;
 	}
 
@@ -147,8 +151,8 @@ public class Modifier {
 				// toSR.setStoichiometry(fromReactantSR.getStoichiometry());
 
 				/**
-				 * If there are reactants but no products which means there is degration, Then generate a degrade
-				 * species, and add them to products
+				 * If there are reactants but no products which means there is degration, Then
+				 * generate a degrade species, and add them to products
 				 */
 				if (!(fromReaction.getNumProducts() > 0)) { // no product exist
 					String degradedID = speciesName + "_degraded";// degrades
@@ -263,11 +267,13 @@ public class Modifier {
 			toSp.setCompartment("default");
 			// if (isLevel3()) {
 			/*
-			 * The role of the attribute 'hasOnlySubstanceUnits' is to indicate whether the units of the species, when
-			 * the species identifier appears in mathematical formulas, are intended to be concentration or amount. The
-			 * attribute takes on a boolean value. In SBML Level 3, the attribute has no default value and must always
-			 * be set in a model; in SBML Level 2, it has a default value of false. We used the same as the source
-			 * model, but in verification it will not change our mc model.
+			 * The role of the attribute 'hasOnlySubstanceUnits' is to indicate whether the
+			 * units of the species, when the species identifier appears in mathematical
+			 * formulas, are intended to be concentration or amount. The attribute takes on
+			 * a boolean value. In SBML Level 3, the attribute has no default value and must
+			 * always be set in a model; in SBML Level 2, it has a default value of false.
+			 * We used the same as the source model, but in verification it will not change
+			 * our mc model.
 			 */
 			toSp.setHasOnlySubstanceUnits(fromSp.getHasOnlySubstanceUnits());
 			// }

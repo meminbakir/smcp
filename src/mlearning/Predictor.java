@@ -1,6 +1,7 @@
 package mlearning;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.util.List;
 
@@ -8,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import mce.util.Config;
-import mce.util.Utils;
 import mchecking.enums.MCTypes;
 import mchecking.translator.qt.PQuery;
 import mtopology.PatternProps;
@@ -35,7 +35,7 @@ class Predictor {
 		Process process = null;
 		long startTime = System.nanoTime();
 		try {
-			String svmPredictorPath = "pySMCPredictor/smcPredictor.py";
+			String svmPredictorPath = "pySMCPredictor" + File.separator + "smcPredictor.py";
 			// svmPredictorPath =
 			// "C:\\Users\\mem_2\\OneDrive\\workspaces\\MeminSony\\ws\\mars2\\PySMCPredictor\\smcPredictor.py";
 			String[] command = new String[] { Config.pythonInterpreter, svmPredictorPath, patternName, properties };
@@ -46,7 +46,7 @@ class Predictor {
 			stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 
 		} catch (Exception e) {
-			Utils.out(e.getMessage());
+			log.error(e.getMessage());
 			e.printStackTrace();
 		} finally {
 			try {
@@ -57,15 +57,15 @@ class Predictor {
 				}
 				line = "";
 				if ((line = stdError.readLine()) != null) {
-					Utils.out(
-							"Error occured while trying to run python predictor. Please make sure your python is in system path.");
-					Utils.out("Current python interpreter is: " + Config.pythonInterpreter);
-					Utils.out(line);
+					log.error("Error occured while trying to run python predictor. "
+							+ "Please make sure you have python 3 installed, "
+							+ "and you set the python path to config.properties correctly.");
+					log.error(line);
 					while ((line = stdError.readLine()) != null) {
-						Utils.out(line);
+						log.error(line);
 					}
 				}
-				Utils.out("\tTotal prediction time is:" + (System.nanoTime() - startTime) + " nanoseconds");
+				log.info("\tTotal prediction time is:" + (System.nanoTime() - startTime) + " nanoseconds");
 			} catch (Exception e) {
 
 			}
@@ -77,7 +77,8 @@ class Predictor {
 	 * Extract the value of properties to a list
 	 * 
 	 * @param patternPropsList
-	 * @return list of properties value as Object type, they could be double or string as well.
+	 * @return list of properties value as Object type, they could be double or
+	 *         string as well.
 	 */
 	private String getProperties(List<PatternProps> patternPropsList) {
 		String properties = "";

@@ -1,24 +1,21 @@
 package mce;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.sbml.jsbml.Model;
+import org.sbml.jsbml.SBMLDocument;
+import org.sbml.jsbml.Species;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import mce.util.Config;
 import mce.util.Utils;
 import mchecking.translator.qt.PQuery;
 import mchecking.translator.qt.PQueryManager;
 import modify.Modifier;
-
-import org.sbml.jsbml.Model;
-import org.sbml.jsbml.SBMLDocument;
-import org.sbml.jsbml.SBMLReader;
-import org.sbml.jsbml.Species;
-//import org.sbml.libsbml.SBMLDocument;
-//import org.sbml.libsbml.SBMLReader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import output.Output;
 
 /**
@@ -48,7 +45,22 @@ public class MCE {
 
 	private void mce(Inputs input) {
 		try {
-			compose(input);
+			Output output = compose(input);
+			if (output != null) {
+				if (output.isError) {
+					// prints errors related to validation
+					output.printError();
+				} else {
+					if (input.isPredict()) {
+						output.printPredictionResult();
+					} else if (input.isVerify()) {
+						output.print();
+					}
+				}
+			}
+		} catch (FileNotFoundException e) {
+			log.error(e.getMessage());
+			return;
 		} catch (Exception e) {
 			String error = e.getMessage();
 			log.error(error);
@@ -61,27 +73,29 @@ public class MCE {
 	 * Load the queries and sbml model from file, and validate them
 	 * 
 	 * @param input
+	 * @return
 	 * @throws Exception
 	 */
-	private void compose(Inputs input) throws Exception {
+	private Output compose(Inputs input) throws Exception {
+		Output output = null;
 		// Load configurations first.
 		Config.loadConfigurations();
-
 		// Modify SBML, e.g. fix constant and species amount etc.
 		sbml = getSBMLModel(input);
 		if (sbml != null) {
 			PQueryManager pQueryManager = new PQueryManager();
 			// Read pattern queries from the file
+			// TODO 04.Feb.2018 uncomment the following line and the line after which has
+			// the @4test annotation.
+			// List<PQuery> pQueryList =
+			// pQueryManager.loadPQueriesFromFile(input.getpQueryFilePath());
 
-			// TODO 04.Feb.2018 uncomment the following line and remove the @4test.
-			List<PQuery> pQueryList = pQueryManager.loadPQueriesFromFile(input.getpQueryFilePath());
-
-			// List<PQuery> pQueryList = getPQueryList(input);// TODO @4test
+			List<PQuery> pQueryList = getPQueryList(input);// TODO @4test
 			if (pQueryList != null) {
 				for (PQuery pQuery : pQueryList) {
 					if (pQuery != null) {
-						Utils.out("Pattern Query : " + pQuery.getPQuery());
-						Output output = new Composer().compose(input, sbml, pQuery);
+						log.info("Pattern Query : " + pQuery.getPQuery());
+						output = new Composer().compose(input, sbml, pQuery);
 						if (output != null) {
 							output.setVerificationResultFPath(input);
 						}
@@ -91,14 +105,7 @@ public class MCE {
 				}
 			}
 		}
-		if (output != null) {
-			if (output.isError) {
-				// prints errors related to validation
-				output.printError();
-			} else {
-				output.print();
-			}
-		}
+		return output;
 	}
 
 	/***
@@ -110,32 +117,26 @@ public class MCE {
 	 * @throws Exception
 	 */
 	private SBMLDocument getSBMLModel(Inputs input) throws Exception {
+		MySBMLReader reader = new MySBMLReader();
 		SBMLDocument document = null;
 		// First Modify the model
 		String sbmlFilePath = input.getSbmlFilePath();
 		if (Modifier.isApproriate4Translation(sbmlFilePath)) {
 			// Appropriate for modification, now apply changes.
 			File rawFile = new File(sbmlFilePath);
-
-			// TODO 04.Feb.2018 I need to have option to translate without modification
-			// TODO 04.Feb.2018 sbmlFilePath = Modifier.modify(rawFile,
-			// input.getOutputDir());
-
-			// If the file pass validation
-			Validation validation = new Validation(input);
-			if (validation.validateSBML(sbmlFilePath)) {
-
-				SBMLReader reader = new SBMLReader();
+			// if user want to only get the prediction
+			if (input.isPredict()) {
+				sbmlFilePath = Modifier.modify(rawFile, input.getOutputDir());
 				document = reader.readSBML(sbmlFilePath);
-			} else {
-				// Get the output of validation which contains error messages.
-				// TODO: If the file cannot pass the validation than warn the user, use the
-				// modified version
-				// and suggest the best MC
-
-				output = validation.output;
+			} else if (input.isVerify()) { // if user wants verification
+				// is file valid
+				Validation validation = new Validation(input);
+				if (validation.validateSBML(sbmlFilePath)) {
+					document = reader.readSBML(sbmlFilePath);
+				} else {
+					output = validation.output;
+				}
 			}
-			Utils.out("Modification completed.\nThe modified file written out to : " + sbmlFilePath);
 		} else {
 			exit();
 		}
@@ -188,7 +189,7 @@ public class MCE {
 					query = "with probability >=1 NEVER " + speciesLast + ">=50"; // NEVER
 					query = "with probability >=1 " + species0Str + " >=50 PRECEDES " + speciesLast + ">=50";// first
 					query = "with probability >=1 " + speciesLast + " >=50 FOLLOWS " + species0Str + ">=50"; // second
-					query = "with probability >=1 EVENTUALLY " + speciesLast + ">" + (50);
+					query = "with probability >=0.1 EVENTUALLY " + speciesLast + ">" + (2);
 					pQuery.validateAndAssingPQuery(query);
 
 				} catch (Exception e) {

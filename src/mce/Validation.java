@@ -80,7 +80,7 @@ public class Validation {
 		boolean isValid = true;
 		String errors = "";
 		try {
-			SBMLReader reader = new SBMLReader();
+			MySBMLReader reader = new MySBMLReader();
 			SBMLDocument document = reader.readSBML(sbmlFilePath);
 			if (document.getNumErrors() > 0) {
 				isValid = false;
@@ -196,8 +196,7 @@ public class Validation {
 				output.error = "SBML file '" + sbmlFilePath + "' contains following problems.\n" + errors;
 			}
 		} catch (Exception e) {
-			// errors += "\n" + e.getMessage();
-			throw new Exception(errors);
+			log.error(e.getMessage(),e);
 		}
 
 		return isValid;

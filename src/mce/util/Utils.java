@@ -466,7 +466,7 @@ public class Utils {
 	}
 
 	public static String lineSeparator() {
-		String lineSeparator = "\n*********************************************************************\n";
+		String lineSeparator = "\n---------------------------------------------------------------\n";
 		return lineSeparator;
 	}
 

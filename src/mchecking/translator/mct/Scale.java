@@ -90,28 +90,28 @@ public class Scale {
 		for (int n = 0; n < sbmlModel.getNumSpecies(); n++) {
 			Species species = sbmlModel.getSpecies(n);
 			// if species is not constant
-			if (!PRISMT.isSpeciesConstant(species)) {
-				String speciesID = species.getId();
-				// initial value can be either initialAmount or initialConcentration (exclusive)
-				double initialValue = PRISMT.getSpeciesInitialValue(species);
-				double scaled = initialValue * coeff;
-				// if scaled value is not within the bounds then it is not possible to scale
-				// a valid value for Model checkers
-				if (Math.abs(scaled) <= getUpperBound()) {
-					// it is scalable.
-					continue;
-				} else {
-					String message = "Species '" + speciesID
-							+ "' has initial amount '" + initialValue + "'. "
-							+ "After re-scaling the inital values of the species to be integer, its value became '" + scaled + "'. "
-							+ "However, the new (re-scaled) value is not within the upper bound '"+((int) getUpperBound())+"'. "
-							+ "Please, change the upper bound '-upB' limit from the command options.";
-					log.error(message);
-					setScalableMessage(message);
-					isSpeciesScalable = false;
-					break;
-				}
+			// if (!PRISMT.isSpeciesConstant(species)) {
+			String speciesID = species.getId();
+			// initial value can be either initialAmount or initialConcentration (exclusive)
+			double initialValue = PRISMT.getSpeciesInitialValue(species);
+			double scaled = initialValue * coeff;
+			// if scaled value is not within the bounds then it is not possible to scale
+			// a valid value for Model checkers
+			if (Math.abs(scaled) <= getUpperBound()) {
+				// it is scalable.
+				continue;
+			} else {
+				String message = "Species '" + speciesID + "' has initial amount '" + initialValue + "'. "
+						+ "After re-scaling the inital values of the species to be integer, its value became '" + scaled
+						+ "'. " + "However, the new (re-scaled) value is not within the upper bound '"
+						+ ((int) getUpperBound()) + "'. "
+						+ "Please, adjust the lower and upper bounds with '-lB' and '-uB' the command options.";
+				log.error(message);
+				setScalableMessage(message);
+				isSpeciesScalable = false;
+				break;
 			}
+			// }
 		}
 	}
 
@@ -147,23 +147,23 @@ public class Scale {
 		for (int n = 0; n < sbmlModel.getNumSpecies(); n++) {
 			Species species = sbmlModel.getSpecies(n);
 			String speciesID = species.getId();
-			if (!PRISMT.isSpeciesConstant(species)) {
-				// initial value can be either initialAmount or initialConcentration (exclusive)
-				double initialValue = PRISMT.getSpeciesInitialValue(species);
-				double scaledValue = initialValue * coeff;
-				if (isWithinIntegerBound(scaledValue)) {
-					setSpeciesInitialValue(species, scaledValue);
-					log.debug("Species:{} initial amount {} scaled to {}", speciesID, initialValue, scaledValue);
-				} else {
-					log.error("The model contains species {} before rescaling it has initial amount {}. "
-							+ "After rescaling to integer the initial value becomes {}. "
-							+ "However, the rescaled value is not within the integer bounds. "
-							+ "Therefore, model checker's do not support it. "
-							+ "Please, revise the initial amount of species.");
+			// if (!PRISMT.isSpeciesConstant(species)) {
+			// initial value can be either initialAmount or initialConcentration (exclusive)
+			double initialValue = PRISMT.getSpeciesInitialValue(species);
+			double scaledValue = initialValue * coeff;
+			if (isWithinTheBounds(scaledValue)) {
+				setSpeciesInitialValue(species, scaledValue);
+				log.debug("Species:{} initial amount {} scaled to {}", speciesID, initialValue, scaledValue);
+			} else {
+				log.error("The model contains species {} before rescaling it has initial amount {}. "
+						+ "After rescaling to integer the initial value becomes {}. "
+						+ "However, the rescaled value is not within the integer bounds. "
+						+ "Therefore, model checker's do not support it. "
+						+ "Please, revise the initial amount of species.");
 
-					break;
-				}
+				break;
 			}
+			// }
 		}
 	}
 
@@ -190,6 +190,15 @@ public class Scale {
 
 					Double tempCoeff = getCoefficient(initialValue);
 					coeff = Math.max(coeff, tempCoeff);
+				}
+				if (!isWithinTheBounds(initialValue)) {
+					String message = "Species " + speciesID
+							+ " has initial amount "+initialValue+" which is not within the upper bound '" + ((int) getUpperBound())
+							+ "'.\n" + "Please, adjust the lower and upper bounds with '-lB' and '-uB' the command options.";
+					log.error(message);
+					setScalableMessage(message);
+					isSpeciesScalable = false;
+					break;
 				}
 			} else {
 				String message = "The initial amount/concentration of species " + speciesID + " is not defined. "
@@ -440,7 +449,7 @@ public class Scale {
 	 */
 	private void updateMinMaxAndCheckBounds(String constName, double value) {
 		updateMinMax(value);
-		if (!isWithinIntegerBound(value)) {
+		if (!isWithinTheBounds(value)) {
 			isConstantsWithinBounds = false;
 			String message = notInIntegerBoundsMessage(constName, value);
 			log.warn(message);
@@ -464,7 +473,7 @@ public class Scale {
 	 * @param value
 	 * @return
 	 */
-	private boolean isWithinIntegerBound(double value) {
+	private boolean isWithinTheBounds(double value) {
 		return (Math.abs(value) <= getUpperBound());
 	}
 

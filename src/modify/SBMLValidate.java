@@ -7,13 +7,15 @@ import org.sbml.jsbml.Model;
 import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLReader;
 
+import mce.MySBMLReader;
+
 //import org.sbml.libsbml.Model;
 //import org.sbml.libsbml.SBMLDocument;
 //import org.sbml.libsbml.SBMLReader;
 
 /**
- * Checks if sbml model has errors, and is it valid for our needs, e.g. should be only one compartment and do not
- * include function
+ * Checks if sbml model has errors, and is it valid for our needs, e.g. should
+ * be only one compartment and do not include function
  * 
  * @author Mehmet Emin BAKIR
  *
@@ -31,7 +33,7 @@ public class SBMLValidate {
 		boolean hasMultipleCompartment = false;
 		String errors = "";
 		try {
-			SBMLReader reader = new SBMLReader();
+			MySBMLReader reader = new MySBMLReader();
 			SBMLDocument document = reader.readSBML(sbmlFilePath);
 			Model sbmlModel = document.getModel();
 			if (sbmlModel == null) {
@@ -56,7 +58,7 @@ public class SBMLValidate {
 		boolean isValid = true;
 		String errors = "";
 		try {
-			SBMLReader reader = new SBMLReader();
+			MySBMLReader reader = new MySBMLReader();
 			SBMLDocument document = reader.readSBML(sbmlFilePath);
 			if (document.getNumErrors() > 0) {
 				isValid = false;
@@ -117,7 +119,7 @@ public class SBMLValidate {
 		boolean isValid = true;
 		String errors = "";
 		try {
-			SBMLReader reader = new SBMLReader();
+			MySBMLReader reader = new MySBMLReader();
 			SBMLDocument document = reader.readSBML(sbmlFilePath);
 			if (document.getNumErrors() > 0) {
 				isValid = false;

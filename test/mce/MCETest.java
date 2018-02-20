@@ -17,7 +17,7 @@ public class MCETest {
 	}
 
 	public static void main(String[] args) {
-		// testMCE();
+//		 testMCE();
 		// "./models/sbml/test/original/"
 		String dirPath = "./models/sbml/test/no_modification/t1";
 		testMCEDir(dirPath);
@@ -41,8 +41,8 @@ public class MCETest {
 						if (sbmlFile.getName().endsWith(".sbml") || sbmlFile.getName().endsWith(".xml")) {
 							Utils.out("[][][][][][][][][][][][][]{}{}{}{}{}{}{}{}{}{}{}{}{}{}[][][][][][][][][]");
 							try {
-								String arguments = "-s " + sbmlFile.getCanonicalPath() + " -q ./examples/pQuery.pq"
-										+ " -o output";
+								String arguments = "-s " + sbmlFile.getCanonicalPath() + " -q ./examples/query.pq "
+										+ " -o /Users/memin/Desktop/del -uB 10000";// -o /Users/memin/Desktop/del
 								String[] args = arguments.split(" ");
 								MCE.start(args);
 							} catch (IOException e) {
@@ -76,13 +76,13 @@ public class MCETest {
 		// one be estimated.
 
 		long startTime = System.currentTimeMillis();
-		String directory = "./models/sbml/test/original/";// "./models/sbml/dave/all";//
+		String directory = "./models/sbml/test/no_modification/t1";// "./models/sbml/dave/all";//
 		// mcpExtra/withFileNo/all";//
 		//
 		// test/unitTest/";//
 		// "./models/sbml/test//451_472/451_465";//
 		// "C:\\Users\\Mehmet\\OneDrive\\git\\mce\\mce\\models\\sbml\\test\\unitTest";//
-		// arguments = "-d " + directory + " -q ./src/pQuery.pq -lb 0 -upb 100 -simsamples 500 -simDepth 5000";
+		 arguments = "-d " + directory + " -q ./src/pQuery.pq  -o /Users/memin/Desktop/del -uB 100000 -simsamples 500 -simDepth 5000";
 		String[] args = arguments.split(" ");
 		MCE.start(args);
 		System.out.println("Total time in ms:" + (System.currentTimeMillis() - startTime));

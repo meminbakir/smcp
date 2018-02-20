@@ -42,7 +42,7 @@ public class MRMCVerify extends Verify {
 		this.output.startTime = Utils.getDateandTime(true, true, null);
 		// Translate models from prism to MRMC format.
 		// prism NaCl.prism -exportmrmc -exportlabels NaCl.lab -exporttrans NaCl.tra
-		String mrmcInputFile = this.targetMC.getOutPutDir() + File.separator + this.input.getFileName();
+		String mrmcInputFile = targetMC.getOutputDir(input) + File.separator + this.input.getFileName();
 
 		// try to generate .tar and label files with external tool, if succeeded
 		// than call MRMC to run
@@ -144,7 +144,7 @@ public class MRMCVerify extends Verify {
 	// them can be removed
 	private void runMRMCWithScript(MCQuery mcQuery, String mrmcInputFile) throws IOException, InterruptedException {
 		// Script can't create directories, so first create dirs if not exist
-		File verDirPath = new File(this.output.getVerificationdirectoryPath());
+		File verDirPath = new File(this.output.getVerificationdirectoryPath(this.input));
 		if (!verDirPath.exists())
 			verDirPath.mkdir();
 
