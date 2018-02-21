@@ -38,7 +38,7 @@ public class MCE {
 	public static void start(String[] arguments) {
 		MCE mce = new MCE();
 		Inputs input = new Inputs(arguments);
-		log.info("Application started.");
+		log.info("Application started. Model file {}", input.getFileName());
 		mce.mce(input);
 		log.info("For more execution details please check the log file.");
 	}
@@ -180,11 +180,11 @@ public class MCE {
 //
 					query = "with probability >=1 " + species0Str + " >=50 UNTIL " + speciesLast + ">=50";
 					query = "with probability >=1 NEVER " + speciesLast + ">=50"; // NEVER
-					query = "with probability >=0.1 EVENTUALLY " + speciesLast + ">" + (2);
-					query = "with probability >=0.3 NEXT " + speciesLast + ">=" + (1);
 					query = "with probability >=1 " + species0Str + " >=50 PRECEDES " + speciesLast + ">=50";// first
 					query = "with probability >=1 " + speciesLast + " >=50 RELEASE " + species0Str + ">=50";
 					query = "with probability >=1 " + speciesLast + " >=3 FOLLOWS " + species0Str + ">=2"; // second
+					query = "with probability >=0.3 NEXT " + speciesLast + ">=" + (1);
+					query = "with probability >=0.1 EVENTUALLY " + speciesLast + ">" + (2);
 
 					pQuery.validateAndAssingPQuery(query);
 

@@ -6,11 +6,6 @@ package mce;
 import java.util.HashMap;
 import java.util.Map;
 
-import mchecking.translator.mct.Scale;
-import mtopology.KineticLawEval;
-import mtopology.KineticLawEvalLexer;
-import mtopology.KineticLawEvalParser;
-
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.sbml.jsbml.JSBML;
@@ -29,10 +24,13 @@ import org.sbml.jsbml.Model;
 import org.sbml.jsbml.Parameter;
 import org.sbml.jsbml.Reaction;
 import org.sbml.jsbml.SBMLDocument;
-import org.sbml.jsbml.SBMLReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import mchecking.translator.mct.Scale2;
+import mtopology.KineticLawEval;
+import mtopology.KineticLawEvalLexer;
+import mtopology.KineticLawEvalParser;
 import output.Output;
 
 /**
@@ -131,8 +129,15 @@ public class Validation {
 
 			// Check if initial amount is decimal, if so, then rescale to integer
 			// return false, if it is decimal but not possible to rescale it
-			Scale scale = new Scale(input);
-			if (!scale.isSpeciesScalable(sbmlModel)) {
+//			Scale scale = new Scale(input);
+//			if (!scale.isSpeciesScalable(sbmlModel)) {
+//				String message = scale.getScalableMessage();
+//				errors += message;
+//				addValidationError(ValidationError.HasDecimalAmount);
+//				isValid = false;
+//			}
+			Scale2 scale = new Scale2(input);
+			if (!scale.scaleContantsAndSpecies(sbmlModel)) {
 				String message = scale.getScalableMessage();
 				errors += message;
 				addValidationError(ValidationError.HasDecimalAmount);

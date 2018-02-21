@@ -1,6 +1,5 @@
 package mce;
 
-import java.io.File;
 import java.util.List;
 
 import org.sbml.jsbml.SBMLDocument;
@@ -36,8 +35,8 @@ public class Composer {
 		Output output = new Output();
 
 		// Run all model checkers, for test purpose.
-		// output = testAllMCheckers(input, sbml, pQuery, patternPropsList);
-		output = testOneModelChecker(input, sbml, pQuery, patternPropsList);
+		output = testAllMCheckers(input, sbml, pQuery, patternPropsList);
+		// output = testOneModelChecker(input, sbml, pQuery, patternPropsList);
 
 		return output;
 	}

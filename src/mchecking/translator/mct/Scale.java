@@ -101,10 +101,10 @@ public class Scale {
 				// it is scalable.
 				continue;
 			} else {
-				String message = "Species '" + speciesID + "' has initial amount '" + initialValue + "'. "
+				String message = "Species '" + speciesID + "' has initial amount '" + initialValue + "'. \n"
 						+ "After re-scaling the inital values of the species to be integer, its value became '" + scaled
-						+ "'. " + "However, the new (re-scaled) value is not within the upper bound '"
-						+ ((int) getUpperBound()) + "'. "
+						+ "'.\n" + "However, the new (re-scaled) value is not within the upper bound '"
+						+ ((int) getUpperBound()) + "'.\n"
 						+ "Please, adjust the lower and upper bounds with '-lB' and '-uB' the command options.";
 				log.error(message);
 				setScalableMessage(message);
@@ -155,11 +155,11 @@ public class Scale {
 				setSpeciesInitialValue(species, scaledValue);
 				log.debug("Species:{} initial amount {} scaled to {}", speciesID, initialValue, scaledValue);
 			} else {
-				log.error("The model contains species {} before rescaling it has initial amount {}. "
-						+ "After rescaling to integer the initial value becomes {}. "
-						+ "However, the rescaled value is not within the integer bounds. "
+				log.error("The species {} has initial amount {}. "
+						+ "After rescaling to integer the initial value becomes {}. \n"
+						+ "However, the rescaled value is not within the integer bounds."
 						+ "Therefore, model checker's do not support it. "
-						+ "Please, revise the initial amount of species.");
+						+ "Please, revise the initial amount of the species.",speciesID, initialValue, scaledValue );
 
 				break;
 			}
@@ -284,6 +284,9 @@ public class Scale {
 			Compartment comp = sbmlModel.getCompartment(i);
 			String constName = comp.getId();
 			double size = comp.getSize();
+			//for compartments only, if size is NaN it is assumed to be 1.
+			if(Double.isNaN(size))
+				size=1;
 			double scaledValue = scaleConstant2IntBounds(constName, size);
 			comp.setSize(scaledValue);
 		}
@@ -296,21 +299,22 @@ public class Scale {
 			double scaledValue = scaleConstant2IntBounds(constName, value);
 			parameter.setValue(scaledValue);
 		}
+		//TODO 21 Feb - I did change the constant species
 		// Add constant true, and/or boundaryConditions true, species
-		long numSpecies = sbmlModel.getNumSpecies();
-		if (numSpecies != 0) {
-			Species species = null;
-			for (int n = 0; n < numSpecies; n++) {
-				species = sbmlModel.getSpecies(n);
-				// if species if constant || or boundary condition is true
-				if (PRISMT.isSpeciesConstant(species)) {
-					String constName = species.getId();
-					double value = PRISMT.getSpeciesInitialValue(species);
-					double scaledValue = scaleConstant2IntBounds(constName, value);
-					setSpeciesInitialValue(species, scaledValue);
-				}
-			}
-		}
+//		long numSpecies = sbmlModel.getNumSpecies();
+//		if (numSpecies != 0) {
+//			Species species = null;
+//			for (int n = 0; n < numSpecies; n++) {
+//				species = sbmlModel.getSpecies(n);
+//				// if species if constant || or boundary condition is true
+//				if (PRISMT.isSpeciesConstant(species)) {
+//					String constName = species.getId();
+//					double value = PRISMT.getSpeciesInitialValue(species);
+//					double scaledValue = scaleConstant2IntBounds(constName, value);
+//					setSpeciesInitialValue(species, scaledValue);
+//				}
+//			}
+//		}
 
 		// Add reaction level local parameters as constant
 		String constName;
@@ -364,6 +368,10 @@ public class Scale {
 			Compartment comp = sbmlModel.getCompartment(i);
 			String constName = comp.getId();
 			double size = comp.getSize();
+			//for compartments only, if size is NaN it is assumed to be 1.
+			if(Double.isNaN(size))
+				size=1;
+			comp.setSize(size);
 			updateMinMaxAndCheckBounds(constName, size);
 		}
 		// Parameters which are declared in compartment level not in reaction level
@@ -379,16 +387,16 @@ public class Scale {
 		if (numSpecies == 0) {
 			log.warn("No species are defined");
 		} else {
-			Species species = null;
-			for (int n = 0; n < numSpecies; n++) {
-				species = sbmlModel.getSpecies(n);
-				// if species if constant || or boundary condition is true
-				if (PRISMT.isSpeciesConstant(species)) {
-					String constName = species.getId();
-					double value = PRISMT.getSpeciesInitialValue(species);
-					updateMinMaxAndCheckBounds(constName, value);
-				}
-			}
+//			Species species = null;
+//			for (int n = 0; n < numSpecies; n++) {
+//				species = sbmlModel.getSpecies(n);
+//				// if species if constant || or boundary condition is true
+//				if (PRISMT.isSpeciesConstant(species)) {
+//					String constName = species.getId();
+//					double value = PRISMT.getSpeciesInitialValue(species);
+//					updateMinMaxAndCheckBounds(constName, value);
+//				}
+//			}
 
 		}
 		// Add reaction level local parameters as constant
@@ -448,6 +456,10 @@ public class Scale {
 	 * @param value
 	 */
 	private void updateMinMaxAndCheckBounds(String constName, double value) {
+		if(Double.isNaN(value)) {
+			log.warn("{} does not have a value, it is assumed to be 1.",constName);
+			value=1;
+		}
 		updateMinMax(value);
 		if (!isWithinTheBounds(value)) {
 			isConstantsWithinBounds = false;
@@ -465,7 +477,7 @@ public class Scale {
 	 * @return
 	 */
 	private String notInIntegerBoundsMessage(String constName, double size) {
-		return constName + " has " + size + " which is not withint the Integer bounds [" + Integer.MIN_VALUE + ", "
+		return constName + " has " + size + " which is not withint the Integer bounds [" + getLowerBound() + ", "
 				+ getUpperBound() + "]. Therefore, it will be scaled to stay within the limits.";
 	}
 
@@ -479,7 +491,7 @@ public class Scale {
 
 	/**
 	 * Update the min and max value of constant species
-	 * 
+	 * If the value is NaN, then we assume it is 1.
 	 * @param min
 	 * @param max
 	 * @param value

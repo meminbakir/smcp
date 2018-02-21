@@ -11,18 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import mce.Inputs;
-import mchecking.ModelChecker;
-import mchecking.translator.TranslatorUtil;
-import mchecking.translator.mct.IMCT;
-import mchecking.translator.mct.Scale;
-import mchecking.translator.mct.prismt.beans.Const;
-import mchecking.translator.mct.prismt.beans.Molecule;
-import mchecking.translator.mct.prismt.beans.Next;
-import mchecking.translator.mct.prismt.beans.Next.Comparer;
-import mchecking.translator.mct.prismt.beans.Next.Operator;
-import mchecking.translator.mct.prismt.beans.Next.Type;
-
 import org.sbml.jsbml.Compartment;
 import org.sbml.jsbml.JSBML;
 import org.sbml.jsbml.KineticLaw;
@@ -50,6 +38,18 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.STGroupFile;
 
+import mce.Inputs;
+import mchecking.ModelChecker;
+import mchecking.translator.TranslatorUtil;
+import mchecking.translator.mct.IMCT;
+import mchecking.translator.mct.Scale2;
+import mchecking.translator.mct.prismt.beans.Const;
+import mchecking.translator.mct.prismt.beans.Molecule;
+import mchecking.translator.mct.prismt.beans.Next;
+import mchecking.translator.mct.prismt.beans.Next.Comparer;
+import mchecking.translator.mct.prismt.beans.Next.Operator;
+import mchecking.translator.mct.prismt.beans.Next.Type;
+
 /**
  * @author Mehmet Emin BAKIR
  *
@@ -61,7 +61,7 @@ public class PRISMT implements IMCT {
 	private static final DecimalFormatSymbols DECIMAL_FORMAT = DecimalFormatSymbols.getInstance(Locale.ENGLISH);
 	private static final Logger log = LoggerFactory.getLogger(PRISMT.class);
 	private Inputs input = null;
-	protected Scale scale;
+	protected Scale2 scale;
 	protected ModelChecker targetMC = null;
 	String stFilePath = "";//ex"./src/mchecking/translator/mct/prismt/prismST.stg";
 	STGroup group = null;
@@ -87,7 +87,7 @@ public class PRISMT implements IMCT {
 		ST modelST = group.getInstanceOf("model");
 		setDetails(sbmlDocument, modelST);
 		Model sbmlModel = sbmlDocument.getModel();
-		scale = new Scale(input, targetMC);
+		scale = new Scale2(input, targetMC);
 		scaleSBMLModel(sbmlModel);
 
 		setModel(sbmlModel, modelST);
@@ -110,8 +110,9 @@ public class PRISMT implements IMCT {
 	 */
 	private void scaleSBMLModel(Model sbmlModel) {
 		// If constants exceeds integer limit, then they are rescaled.
-		scale.scaleConstatsRemainWithinIntegerBounds(sbmlModel);
-		scale.scaleSpeciesInitialValue(sbmlModel);
+//		scale.scaleConstatsRemainWithinIntegerBounds(sbmlModel);
+//		scale.scaleSpeciesInitialValue(sbmlModel);
+		scale.scaleContantsAndSpecies(sbmlModel);
 	}
 
 	/**
@@ -196,6 +197,17 @@ public class PRISMT implements IMCT {
 		ST nextST = group.getInstanceOf("next");
 		composeRule(guardOfNextST, nextST, reaction, direction);
 		String rate = getReactionRate(reaction, direction);
+		//21-Feb 2018, it is added to prevent rule triggers when the rate is minus.
+		Next guard = new Next();
+		guard.setName(rate);
+		guard.setBound("0");
+		guard.setType(Type.REACTANT);
+		guard.setOperator(Operator.NA);
+		guard.setComparer(Comparer.GEQ);
+		guard.setStoichiometry("");
+		guardOfNextST.add("reactant", guard);
+		
+		
 		updateItemST.add("rate", rate);
 		updateItemST.add("next", nextST);
 		ruleST.add("guard", guardOfNextST);

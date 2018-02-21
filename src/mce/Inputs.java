@@ -18,7 +18,7 @@ public class Inputs {
 	private String fileName = "";
 	private String pQueryFilePath = "";
 	private String lowerBound = "0";
-	private String upperBound = "100";
+	public String upperBound = "100";
 	private String simSamples = "500";// simulation samples
 	private String simDepth = "5000";// simulation depth
 	private String sbmlDirectoryPath;
@@ -57,6 +57,7 @@ public class Inputs {
 		this.predict = predict;
 	}
 
+	public Inputs() {}
 	public Inputs(String[] arguments) {
 		manageArgs(arguments);
 	}

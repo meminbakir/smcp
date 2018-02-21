@@ -14,6 +14,7 @@ import mce.util.Utils;
 import mchecking.MCheck;
 import mchecking.ModelChecker;
 import mchecking.enums.MCTypes;
+import mchecking.toolprops.MCPropsLoader;
 import mchecking.translator.qt.PQuery;
 import mtopology.PatternProps;
 
@@ -69,7 +70,11 @@ public class ManageTests {
 					// repeat the model checking and eventually get their
 					// average
 					for (int i = 0; i < PerforRes.REPETATIONS; i++) {
-						output = new MCheck().modelCheck(input, sbml, new ModelChecker(targetMC), pQuery);
+						
+						
+						ModelChecker targetMC2 = new ModelChecker(targetMC);
+						MCPropsLoader.loadMCProps(targetMC2);
+						output = new MCheck().modelCheck(input, sbml, targetMC2, pQuery);
 						output.setVerificationResultFPath(input);
 						PerforRes.addOutput(output);
 						// Print detailed errors

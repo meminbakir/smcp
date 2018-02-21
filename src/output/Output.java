@@ -169,7 +169,7 @@ public class Output {
 	// Print pure only errors
 	public void printError() {
 		log.error(error);
-		Utils.out(error);
+//		Utils.out(error);
 	}
 
 	public void setPredictResult(String message) {

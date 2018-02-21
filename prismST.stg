@@ -1,0 +1,59 @@
+model(details, consts, name, molecules, rules, rewards) ::= <<
+
+//<details>
+ctmc
+
+//*** Constants (Includes the species which have constant=true AND/OR boundaryCondition=true attributes) ***
+<consts>
+
+module <name> //model name
+
+	//*** Variables (Species) ***	
+        <molecules>
+ 
+	//*** Rules (Reactions) ***
+        <rules>
+        
+endmodule
+
+<rewards:{reward | <reward>}; separator="\n\n">
+
+>>
+
+consts(consts) ::= <<
+<consts:{const | const <const.type> <const.name> = <const.value>;}; separator = "\n">
+>>
+
+molecules(molecules) ::= <<
+<molecules:{molecule |<molecule.name> : [<molecule.lowerBound>..<molecule.upperBound>] init <molecule.init>;};separator = "\n">
+>>
+
+//rule(guard,updateItem) ::= <<
+//<guard,updateItem:{guard,updateItem |[] <guard> -> <updateItem>;}; separator="\n">
+//>>
+
+rule(guard,updateItem) ::= <<
+<guard,updateItem:{guard,updateItem |[] <guard> -> <updateItem>;}; separator="\n">
+>>
+
+//The Guards of molecule, P.S reactants structure is valid for both reactants and products in a reaction.
+guardOfNext(reactant) ::= <<
+<reactant:{reactant | (<reactant.name> <reactant.operator> <reactant.stoichiometry> <reactant.comparer> <reactant.bound>)}; separator=" & ">
+>>
+
+//Update of the rule
+//<!rate1: (_E'=_E-1) & (_S'= _S-1) & (ES' = ES+1) + rate2:next2... + rate3:up3...!>
+updateItem(rate,next) ::= <<
+<rate,next:{rate,next|<if(rate)><rate> : <endif><next> }; separator=" + ">
+>>
+
+//<!(_E'=_E-1) & (_S'= _S-1) & (ES' = ES+1)!>
+next(next) ::= <<
+<next:{next | (<next.name>' = <next.name> <next.operator> <next.stoichiometry>)}; separator=" & ">
+>>
+
+reward(molecule) ::= <<
+rewards "<molecule>_rew"
+    true : <molecule>;
+endrewards
+>>

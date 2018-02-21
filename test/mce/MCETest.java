@@ -19,9 +19,10 @@ public class MCETest {
 	public static void main(String[] args) {
 //		 testMCE();
 		// "./models/sbml/test/original/"
-		String dirPath = "./models/sbml/test/no_modification/t1";
+		//"./models/sbml/test/org2";
+		String dirPath = "./models/sbml/test/org2";//./models/sbml/test/no_modification";
 		testMCEDir(dirPath);
-		// countValidModel("./models/sbml/curated/");
+//		 countValidModel("./models/sbml/curated/");
 		// Object[] result = new Object[1];
 		// result[0] = "MC2";
 		// MCTypes targetMC = MCTypes.valueOf(result[0].toString());
@@ -42,7 +43,7 @@ public class MCETest {
 							Utils.out("[][][][][][][][][][][][][]{}{}{}{}{}{}{}{}{}{}{}{}{}{}[][][][][][][][][]");
 							try {
 								String arguments = "-s " + sbmlFile.getCanonicalPath() + " -q ./examples/query.pq "
-										+ " -o /Users/memin/Desktop/del -uB 10000";// -o /Users/memin/Desktop/del
+										+ " -o /Users/memin/Desktop/del -uB 1000000 -action verify";// -o /Users/memin/Desktop/del
 								String[] args = arguments.split(" ");
 								MCE.start(args);
 							} catch (IOException e) {
@@ -98,6 +99,9 @@ public class MCETest {
 	public static void countValidModel(String dirPath) {
 		File sbmlDirectory = new File(dirPath);
 		Validation validation = new Validation();
+		Inputs input=new Inputs();
+		input.upperBound=String.valueOf(Integer.MAX_VALUE-1);
+		validation.input=input;
 		List<String> validSBMLList = new ArrayList<String>();
 		List<String> notValidSBMLList = new ArrayList<String>();
 		// if many sbml model will be retrieved from a directory
@@ -135,7 +139,7 @@ public class MCETest {
 		for (String string : validSBMLList) {
 			System.out.println(string);
 		}
-		// copyValidFiles(validSBMLList);
+		 copyValidFiles(validSBMLList);
 	}
 
 	/**
@@ -143,7 +147,7 @@ public class MCETest {
 	 */
 	private static void copyValidFiles(List<String> validSBMLList) {
 		String source = "./models/sbml/curated/";
-		String to = "./models/sbml/test/original/";
+		String to = "./models/sbml/test/org2/";
 		for (String fileName : validSBMLList) {
 
 			try {
