@@ -40,7 +40,7 @@ public class MCE {
 		Inputs input = new Inputs(arguments);
 		log.info("Application started.");
 		mce.mce(input);
-		log.info("Application run completed. For execution details please check the log file.");
+		log.info("For more execution details please check the log file.");
 	}
 
 	private void mce(Inputs input) {
@@ -58,14 +58,8 @@ public class MCE {
 					}
 				}
 			}
-		} catch (FileNotFoundException e) {
-			log.error(e.getMessage());
-			return;
 		} catch (Exception e) {
-			String error = e.getMessage();
-			log.error(error);
-			Utils.out(error);
-			e.printStackTrace();
+			log.error(e.getMessage(),e);
 		}
 	}
 
@@ -178,18 +172,20 @@ public class MCE {
 					// first
 					// precedes
 					// second
-					query = "with probability >=1 STEADY-STATE " + speciesLast + ">=50"; // STEADY-STATE
-					query = "with probability >=1 INFINITELY-OFTEN " + speciesLast + ">=50"; // STEADY-STATE
+					query = "with probability >=1 INFINITELY-OFTEN " + speciesLast + ">=1"; // STEADY-STATE
+					query = "with probability >=1 STEADY-STATE " + speciesLast + ">=1"; // STEADY-STATE
 					query = "with probability >=1 " + species0Str + " >=50 WEAK-UNTIL " + speciesLast + ">=50"; // WEAK-UNTIL
-					// ALWAYS
+//					// ALWAYS
 					query = "with probability >=1 ALWAYS " + speciesLast + ">=" + (0);
-					query = "with probability >=1 NEXT " + speciesLast + ">=" + (50);
-
+//
 					query = "with probability >=1 " + species0Str + " >=50 UNTIL " + speciesLast + ">=50";
 					query = "with probability >=1 NEVER " + speciesLast + ">=50"; // NEVER
-					query = "with probability >=1 " + species0Str + " >=50 PRECEDES " + speciesLast + ">=50";// first
-					query = "with probability >=1 " + speciesLast + " >=50 FOLLOWS " + species0Str + ">=50"; // second
 					query = "with probability >=0.1 EVENTUALLY " + speciesLast + ">" + (2);
+					query = "with probability >=0.3 NEXT " + speciesLast + ">=" + (1);
+					query = "with probability >=1 " + species0Str + " >=50 PRECEDES " + speciesLast + ">=50";// first
+					query = "with probability >=1 " + speciesLast + " >=50 RELEASE " + species0Str + ">=50";
+					query = "with probability >=1 " + speciesLast + " >=3 FOLLOWS " + species0Str + ">=2"; // second
+
 					pQuery.validateAndAssingPQuery(query);
 
 				} catch (Exception e) {

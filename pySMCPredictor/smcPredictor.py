@@ -18,9 +18,13 @@ from predictor.pattern.Pattern import PatternEnum, Pattern
 import pandas as pd
 import predictor.config as config
 
+
 def warn(*args, **kwargs):
     pass
+
+
 warnings.warn = warn
+
 
 def out(content, directory="results", outputFile="PredictionLogs.txt"):
     '''Prints and Logs the content'''
@@ -28,6 +32,7 @@ def out(content, directory="results", outputFile="PredictionLogs.txt"):
     file = config.PROJECT_ROOT + os.sep + directory + os.sep + outputFile
     with open(file, 'a') as file_:
         file_.write(content)
+
 
 def processData(X, preProcessName="NONE"):
         processedX = X.copy()
@@ -41,10 +46,12 @@ def processData(X, preProcessName="NONE"):
             processedX = preprocessor.transform(processedX)
         return processedX, preprocessor
 
+
 class BestClassifiers(object):
     '''
     SVM models of different patterns. It loads model and enable prediction with new data.
     '''
+
     def __init__(self, patternEnum=PatternEnum.EVENTUALLY):
         '''
         Initialize pattern's object with corresponding model file name and the best SMV classifier and pre-processing method identified before.
@@ -152,11 +159,12 @@ class BestClassifiers(object):
     def getModel(self):
         "Get the classifier, and the unique class labels (the class names)"
         try:
+#             print("self.modelFile",self.modelFile)
             clf, preprocessor = pickle.load(open(self.modelFile, "rb"))
-            # print("Classifier found. It is loading.")
+#             print("Classifier found. It is loading.")
             return clf, preprocessor;
         except (OSError, IOError):  # Model does not exist, first train then save it
-            # print("Classifier not found. New classifier is training.")
+#             print("Classifier not found. New classifier is training.")
             X, preprocessor = processData(self.pattern.feature, self.preProcessMethod);
             # shuffle data
             shuffled_X, shuffled_y = shuffle(X, self.pattern.y, random_state=self.maxRandState)
@@ -169,11 +177,12 @@ class BestClassifiers(object):
 
     def predict(self, properties):
         clf, preprocessor = self.getModel()
-        if not preprocessor is None:
+        if preprocessor:
             properties = preprocessor.transform(properties)  # apply the pre-processing method done for training date
         targetMC = clf.predict(properties)
         return targetMC
 # end of class
+
 
 if __name__ == '__main__':
     # print("Accessed the main method of the SMC Predictor")

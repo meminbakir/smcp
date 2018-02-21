@@ -3,6 +3,7 @@
  */
 package mchecking.translator.mct.prismt;
 
+import java.io.File;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
@@ -62,12 +63,13 @@ public class PRISMT implements IMCT {
 	private Inputs input = null;
 	protected Scale scale;
 	protected ModelChecker targetMC = null;
-	String stFilePath = "./src/mchecking/translator/mct/prismt/prismST.stg";
+	String stFilePath = "";//ex"./src/mchecking/translator/mct/prismt/prismST.stg";
 	STGroup group = null;
 	List<String> addedVars = new ArrayList<String>();
 
 	public PRISMT(ModelChecker targetMC) {
 		this.targetMC = targetMC;
+		stFilePath = System.getProperty("user.dir") + File.separator +"prismST.stg";
 		group = new STGroupFile(stFilePath);
 	}
 

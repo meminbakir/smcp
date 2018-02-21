@@ -160,7 +160,7 @@ public class CalculateGraphProps {
 	 * @return
 	 */
 	public PatternProps calculateProps() {
-		log.info("Calculating topological properties of " + graph.getName() + " " + graph.getGraphType());
+		log.debug("Calculating topological properties of " + graph.getName() + " " + graph.getGraphType());
 		// Generate properties enabled for current pattern
 		GraphP thisProp = GraphP.Vertices;
 		if (patternProps.isEnabled(thisProp)) {

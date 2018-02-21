@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import mchecking.ModelChecker;
 import mchecking.enums.MCTypes;
+import mchecking.toolprops.MCPropsLoader;
 import mchecking.translator.qt.PQuery;
 import mtopology.PatternProps;
 
@@ -18,15 +19,15 @@ public class MLearning {
 	private static final Logger log = LoggerFactory.getLogger(MLearning.class);
 
 	public ModelChecker estimateMChecker(List<PatternProps> patternPropsList, PQuery pQuery) {
-		log.info("\tStart Prediction.");
+		log.info("Starting Prediction.");
 		Predictor predictor = new Predictor();
 		MCTypes targetMC = predictor.pythonPredict(patternPropsList, pQuery);
-		log.info("\tPrediction Ended.");
+		log.info("Prediction Ended.");
 		// Cross-Checks if the estimated MC can verify the query. But ML has to return the one can verify.
 		ModelChecker targetModelChecker = new ModelChecker(targetMC);
 		List<MCTypes> supportedMCs = ModelChecker.getSupportedModelCheckers(pQuery);
 		if (supportedMCs.contains(targetModelChecker.getType())) {
-			log.info("\tThe fastest SMC prediction for " + pQuery.getPatterns().get(1) + " pattern is:"
+			log.info("The fastest SMC prediction for " + pQuery.getPatterns().get(1) + " pattern is: "
 					+ targetModelChecker.getType());
 		} else {
 			// If predicted SMC does not support the pattern

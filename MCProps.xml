@@ -54,6 +54,9 @@
 			<os type="LINUX">
 				/usr/local/bin/ymer
 			</os>
+			<os type="MAC">
+			
+			</os>
 		</appPath>
 		<!-- <outputDir></outputDir> -->
 		<modelExtension>prism</modelExtension>
@@ -68,6 +71,8 @@
 			<os type="LINUX">
 				mrmc
 			</os>
+			<os type="MAC">
+			</os>
 		</appPath>
 		<!-- <outputDir></outputDir> -->
 		<!--MRMC uses prism extension then .tra, .lab automatically will be extracted -->
@@ -75,11 +80,12 @@
 			<modelExtension>prism</modelExtension>
 			<externalToolPath>
 				<os type="WINDOWS">
-					C:\prism\customPrism\bin\customPrism.bat
+					C:\prism\prism-4.2.1\bin\prism.bat
 				</os>
 				<os type="LINUX">
-					<!-- customPrism in Linux prism -->
 					/opt/prism/prism-4.2.1/bin/prism
+				</os>
+				<os type="MAC">
 				</os>
 			</externalToolPath>
 		</externalTool>
@@ -94,12 +100,9 @@
 			<os type="LINUX">
 				/opt/mc2/mc2.jar
 			</os>
+			<os type="MAC">
+			</os>
 		</appPath>
-		<!-- <outputDir></outputDir> -->
-		<!-- <externalTool type="PRISM"> <modelExtension>prism</modelExtension> 
-			<externalToolPath> <os type="WINDOWS"> C:\prism\customPrism\bin\customPrism.bat 
-			</os> <os type="LINUX"> customPrism in Linux prism /opt/prism/prism-4.2.1/bin/prism 
-			</os> </externalToolPath> </externalTool> -->
 		<externalTool type="GILLESPIE2">
 			<modelExtension>sbml</modelExtension>
 			<externalToolPath>
@@ -112,19 +115,5 @@
 				</os>
 			</externalToolPath>
 		</externalTool>
-	</mc>
-	<mc type="PYTHON">
-		<name>python</name>
-		<!--Provide app path -->
-		<appPath>
-			<os type="WINDOWS">
-				python
-			</os>
-			<os type="LINUX">
-				/usr/bin/anaconda3/bin/python3
-			</os>
-		</appPath>
-		<!-- <outputDir></outputDir> -->
-		<modelExtension>prism</modelExtension>
 	</mc>
 </modelCheckers>

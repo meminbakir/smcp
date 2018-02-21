@@ -1,14 +1,16 @@
 package mce;
 
+import java.io.File;
 import java.util.List;
 
 import org.sbml.jsbml.SBMLDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import mce.util.Utils;
+import mce.util.StringUtils;
 import mchecking.MCheck;
 import mchecking.ModelChecker;
+import mchecking.toolprops.MCPropsLoader;
 import mchecking.translator.qt.PQuery;
 import mlearning.MLearning;
 import mtopology.PatternProps;
@@ -69,7 +71,23 @@ public class Composer {
 		ModelChecker targetMC = new MLearning().estimateMChecker(patternPropsList, pQuery);
 		Output output = null;
 		if (input.isVerify()) {
-			output = new MCheck().modelCheck(input, sbml, targetMC, pQuery);
+			// Load the properties of target model checker from mcProb.xml file
+			MCPropsLoader.loadMCProps(targetMC);
+			boolean isAppPathConfigured = false;
+			// if model checker execution file is not exits, it cannot be verified.
+			if (targetMC.getAppPath() != null) {
+				if (!StringUtils.isNullOrEmpty(targetMC.getAppPath())) {
+					output = new MCheck().modelCheck(input, sbml, targetMC, pQuery);
+					isAppPathConfigured = true;
+				}
+			}
+			// if app path is not configured in MCProps then rise error.
+			if (!isAppPathConfigured) {
+				log.error(
+						"Please check {} path in MCProps.xml file. Make sure you set path correctly inside the corresponding operating system field.",
+						targetMC.getType(), targetMC.getType());
+
+			}
 		} else {
 			output = new Output();
 			String message = String.format("The fastest SMC prediction for model: %s and pattern: %s is: %s",

@@ -18,9 +18,7 @@ public class MCheck {
 	private static final Logger log = LoggerFactory.getLogger(MCheck.class);
 
 	public Output modelCheck(Inputs input, SBMLDocument sbml, ModelChecker targetMC, PQuery pQuery) {
-		// 1. Load the properties of target model checker from mcProb.xml file
-		MCPropsLoader.loadMCProps(targetMC);
-		// 2. Translate the query
+		// 1. Translate the query
 		Translator translator = new Translator();
 		MCQuery mcQuery = translator.translatePQuery(input, pQuery, targetMC);
 
@@ -30,7 +28,7 @@ public class MCheck {
 		if (mcQuery.isVerifiable()) {
 			String mcModelPath = null;
 
-			// 3. Translate model
+			// 2. Translate model
 			if (targetMC.getType() == MCTypes.MRMC) {
 				// MRMC requires properties to be translated to labels
 				mcModelPath = translator.translateMC(input, sbml, targetMC, mcQuery);
@@ -39,7 +37,7 @@ public class MCheck {
 				mcModelPath = translator.translateMC(input, sbml, targetMC);
 			}
 
-			// 4. Verify model
+			// 3. Verify model
 			if (mcModelPath != null) {
 				output = new VerifyManager().verify(input, mcModelPath, targetMC, mcQuery);
 			} else {

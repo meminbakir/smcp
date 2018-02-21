@@ -69,11 +69,12 @@ public class PLASMAVerify extends Verify {
 				// Linux forced to run command on terminal.
 				String mcCommand[] = { "/bin/sh", "-c", plasmaCommand };
 				Utils.runCommand(mcCommand, this.output);
-				if ((os != OS.LINUX)) {
-					String warning = "Your operating system(" + os + ") not tested, the app just tested with"
-							+ OS.WINDOWS + "and " + OS.LINUX;
-					log.warn(warning);
-				}
+				// if ((os != OS.LINUX)) {
+				// String warning = "Your operating system(" + os + ") not tested, the app just
+				// tested with "
+				// + OS.WINDOWS + " and " + OS.LINUX;
+				// log.warn(warning);
+				// }
 				break;
 			}
 		} catch (Exception e) {

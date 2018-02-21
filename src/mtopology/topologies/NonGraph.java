@@ -48,7 +48,7 @@ public class NonGraph implements ITopology {
 
 	@Override
 	public PatternProps calculateProps() {
-		log.info("Calculating topological properties of NONGRAPH");
+		log.debug("Calculating topological properties of NONGRAPH");
 
 		NonGraphProperties thisProp = NonGraphProperties.NumOfSpecies;
 		if (getPatternProps().isEnabled(thisProp)) {

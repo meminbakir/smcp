@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +36,8 @@ class Predictor {
 		Process process = null;
 		long startTime = System.nanoTime();
 		try {
-			String svmPredictorPath = "pySMCPredictor" + File.separator + "smcPredictor.py";
+			String svmPredictorPath = System.getProperty("user.dir") + File.separator + "pySMCPredictor"
+					+ File.separator + "smcPredictor.py";
 			// svmPredictorPath =
 			// "C:\\Users\\mem_2\\OneDrive\\workspaces\\MeminSony\\ws\\mars2\\PySMCPredictor\\smcPredictor.py";
 			String[] command = new String[] { Config.pythonInterpreter, svmPredictorPath, patternName, properties };
@@ -53,8 +55,13 @@ class Predictor {
 				String line = "";
 				process.waitFor();
 				while ((line = stdInput.readLine()) != null) {
-					targetMC = MCTypes.valueOf(line);
+					try {
+						targetMC = MCTypes.valueOf(line);
+					} catch (Exception e) {
+						log.error(line + e.getMessage(), e);
+					}
 				}
+				// targetMC = MCTypes.valueOf(line);
 				line = "";
 				if ((line = stdError.readLine()) != null) {
 					log.error("Error occured while trying to run python predictor. "
@@ -65,9 +72,10 @@ class Predictor {
 						log.error(line);
 					}
 				}
-				log.info("\tTotal prediction time is:" + (System.nanoTime() - startTime) + " nanoseconds");
+				log.info("Total prediction time is: " + TimeUnit.NANOSECONDS.toSeconds((System.nanoTime() - startTime))
+						+ " secs");
 			} catch (Exception e) {
-
+				log.error(e.getMessage(), e);
 			}
 		}
 		return targetMC;
