@@ -106,7 +106,7 @@ public class Inputs {
 		simDepth = setOptionalArguments(arguments, simDepth, optionalParamName);
 
 		optionalParamName = "-o";
-		outputDir = setOptionalArguments(arguments, outputDir, optionalParamName);
+		outputDir = setOptionalArguments(arguments, getOutputDir(), optionalParamName);
 	}
 
 	private void setActionArgument(String action) {

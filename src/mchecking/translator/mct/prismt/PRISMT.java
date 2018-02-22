@@ -63,13 +63,14 @@ public class PRISMT implements IMCT {
 	private Inputs input = null;
 	protected Scale2 scale;
 	protected ModelChecker targetMC = null;
-	String stFilePath = "";//ex"./src/mchecking/translator/mct/prismt/prismST.stg";
+	String stFilePath = "";// ex"./src/mchecking/translator/mct/prismt/prismST.stg";
 	STGroup group = null;
 	List<String> addedVars = new ArrayList<String>();
 
 	public PRISMT(ModelChecker targetMC) {
 		this.targetMC = targetMC;
-		stFilePath = System.getProperty("user.dir") + File.separator +"prismST.stg";
+		stFilePath = System.getProperty("user.dir") + File.separator + "configs" + File.separator + "resources"
+				+ File.separator + "string_template" + File.separator + "prismST.stg";
 		group = new STGroupFile(stFilePath);
 	}
 
@@ -89,8 +90,8 @@ public class PRISMT implements IMCT {
 		Model sbmlModel = sbmlDocument.getModel();
 		scale = new Scale2(input, targetMC);
 		scaleSBMLModel(sbmlModel);
-		//If model needs scaling but not scalable, then stop executing
-		if(!scale.isContsAndSpeciesScalable) {
+		// If model needs scaling but not scalable, then stop executing
+		if (!scale.isContsAndSpeciesScalable) {
 			return null;
 		}
 
@@ -114,8 +115,8 @@ public class PRISMT implements IMCT {
 	 */
 	private void scaleSBMLModel(Model sbmlModel) {
 		// If constants exceeds integer limit, then they are rescaled.
-//		scale.scaleConstatsRemainWithinIntegerBounds(sbmlModel);
-//		scale.scaleSpeciesInitialValue(sbmlModel);
+		// scale.scaleConstatsRemainWithinIntegerBounds(sbmlModel);
+		// scale.scaleSpeciesInitialValue(sbmlModel);
 		scale.scaleContantsAndSpecies(sbmlModel);
 	}
 
@@ -201,7 +202,7 @@ public class PRISMT implements IMCT {
 		ST nextST = group.getInstanceOf("next");
 		composeRule(guardOfNextST, nextST, reaction, direction);
 		String rate = getReactionRate(reaction, direction);
-		//21-Feb 2018, it is added to prevent rule triggers when the rate is minus.
+		// 21-Feb 2018, it is added to prevent rule triggers when the rate is minus.
 		Next guard = new Next();
 		guard.setName(rate);
 		guard.setBound("0");
@@ -210,8 +211,7 @@ public class PRISMT implements IMCT {
 		guard.setComparer(Comparer.GR);
 		guard.setStoichiometry("");
 		guardOfNextST.add("reactant", guard);
-		
-		
+
 		updateItemST.add("rate", rate);
 		updateItemST.add("next", nextST);
 		ruleST.add("guard", guardOfNextST);
@@ -571,7 +571,8 @@ public class PRISMT implements IMCT {
 						// species.getId()
 						// + "' is " + init + "\nThe amount will automatically be casted to Integer!");
 						// }
-						constBean = new Const("double", constName, convertFromScientificNotation(init));// String.valueOf((int) init)
+						constBean = new Const("double", constName, convertFromScientificNotation(init));// String.valueOf((int)
+																										// init)
 						addedVars.add(constName);
 						constsST.add("consts", constBean);
 					}

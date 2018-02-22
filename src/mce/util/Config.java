@@ -49,7 +49,8 @@ public class Config {
 			// if the new
 			// one works too. Especially for jar files
 			// String fileName = projPath + File.separator + "config.properties";//
-			String fileName = System.getProperty("user.dir") + File.separator + "config.properties";
+			String fileName = System.getProperty("user.dir") + File.separator + "configs" + File.separator
+					+ "python_config.properties";
 			// System.out.println("Path for Config:" + fileName);
 			// input = Config.class.getClassLoader().getResourceAsStream(fileName);
 			// if (input == null) {

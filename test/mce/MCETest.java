@@ -17,12 +17,13 @@ public class MCETest {
 	}
 
 	public static void main(String[] args) {
-//		 testMCE();
+		// testMCE();
 		// "./models/sbml/test/original/"
-		//"./models/sbml/test/org2";
-		String dirPath = "./models/sbml/test/org2/t2";//"./models/sbml/test/no_modification";//"./models/sbml/test/org2";
+		// "./models/sbml/test/org2";
+		// "./examples"
+		String dirPath = "./models/sbml/test/org2/t2";// "./models/sbml/test/no_modification";//"./models/sbml/test/org2";
 		testMCEDir(dirPath);
-//		 countValidModel("./models/sbml/curated/");
+		// countValidModel("./models/sbml/curated/");
 		// Object[] result = new Object[1];
 		// result[0] = "MC2";
 		// MCTypes targetMC = MCTypes.valueOf(result[0].toString());
@@ -42,8 +43,10 @@ public class MCETest {
 						if (sbmlFile.getName().endsWith(".sbml") || sbmlFile.getName().endsWith(".xml")) {
 							Utils.out("[][][][][][][][][][][][][]{}{}{}{}{}{}{}{}{}{}{}{}{}{}[][][][][][][][][]");
 							try {
+								
 								String arguments = "-s " + sbmlFile.getCanonicalPath() + " -q ./examples/query.pq "
-										+ " -o /Users/memin/Desktop/del -uB 1.0E7 -action verify";// -o /Users/memin/Desktop/del
+										+ " -o /Users/memin/Desktop/del -uB "+(Integer.MAX_VALUE-1)+" -action verify";// -o
+																									// /Users/memin/Desktop/del
 								String[] args = arguments.split(" ");
 								MCE.start(args);
 							} catch (IOException e) {
@@ -83,7 +86,8 @@ public class MCETest {
 		// test/unitTest/";//
 		// "./models/sbml/test//451_472/451_465";//
 		// "C:\\Users\\Mehmet\\OneDrive\\git\\mce\\mce\\models\\sbml\\test\\unitTest";//
-		 arguments = "-d " + directory + " -q ./src/pQuery.pq  -o /Users/memin/Desktop/del -uB 100000 -simsamples 500 -simDepth 5000";
+		arguments = "-d " + directory
+				+ " -q ./src/pQuery.pq  -o /Users/memin/Desktop/del -uB 100000 -simsamples 500 -simDepth 5000";
 		String[] args = arguments.split(" ");
 		MCE.start(args);
 		System.out.println("Total time in ms:" + (System.currentTimeMillis() - startTime));
@@ -99,10 +103,10 @@ public class MCETest {
 	public static void countValidModel(String dirPath) {
 		File sbmlDirectory = new File(dirPath);
 		Validation validation = new Validation();
-		Inputs input=new Inputs();
-		input.upperBound=String.valueOf(Integer.MAX_VALUE-1);
-		input.lowerBound=String.valueOf(0);
-		validation.input=input;
+		Inputs input = new Inputs();
+		input.upperBound = String.valueOf(Integer.MAX_VALUE - 1);
+		input.lowerBound = String.valueOf(0);
+		validation.input = input;
 		List<String> validSBMLList = new ArrayList<String>();
 		List<String> notValidSBMLList = new ArrayList<String>();
 		// if many sbml model will be retrieved from a directory
@@ -111,10 +115,10 @@ public class MCETest {
 			if (fList != null) {
 				for (File sbmlFile : fList) {
 					if (sbmlFile.isFile()) {
-						if(sbmlFile.getName().contains("BIOMD0000000036")) {
+						if (sbmlFile.getName().contains("BIOMD0000000036")) {
 							System.out.println(String.format("%s", "stop"));
-							}
-						
+						}
+
 						if (sbmlFile.getName().endsWith(".sbml") || sbmlFile.getName().endsWith(".xml")) {
 							Utils.out("[][][][][][][][][][][][][]{}{}{}{}{}{}{}{}{}{}{}{}{}{}[][][][][][][][][]");
 							try {
@@ -145,7 +149,7 @@ public class MCETest {
 		for (String string : validSBMLList) {
 			System.out.println(string);
 		}
-		 copyValidFiles(validSBMLList);
+		copyValidFiles(validSBMLList);
 	}
 
 	/**

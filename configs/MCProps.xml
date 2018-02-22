@@ -1,36 +1,36 @@
 <?xml version="1.0"?>
 
-<!-- SMCPredictor needs to know where the SMC tools are located. One way 
-	of describing the path is installing tools at any location and providing 
-	the absolute path of the tools . Or just adding the absolute path of the tool 
-	in PATH variable and providing the right command to access the tool.-->
+<!-- SMCPredictor needs to know where the SMC tools are located. For each 
+	SMC tool you need to set the path for your operating system. One way of describing 
+	the path is installing tools at any location and providing the absolute path 
+	of the tools . Or just adding the absolute path of the tool in PATH variable 
+	and providing the right command to access the tool. P.S. MRMC and MC2 tool 
+	depend on external tools, PRISM and Gillespie2 respectively. Therefore, for 
+	MRMC and MC2 you need to set the path of the external tools, too. -->
 
 <modelCheckers>
 	<mc type="PRISM">
 		<name>prism</name>
-		<!--Provide app path -->
 		<appPath>
 			<os type="WINDOWS">
-				C:\prism\prism-4.2.1\bin\prism.bat
+				<!--Provide prism path here if you are using windows -->
 			</os>
 			<os type="LINUX">
+				<!--Example path for linux -->
 				/opt/prism/prism-4.2.1/bin/prism
 			</os>
 			<os type="MAC">
-				<!-- /Users/memin/ModelCheckers/prism-4.4-osx64/bin/prism -->
+				<!--Provide prism path here if you are using mac -->
 				/Users/memin/OneDrive/workspaces/JavaProjects/git/smcp/SMCTools/prism-4.4-osx64/bin/prism
 			</os>
 		</appPath>
-		<!-- <outputDir></outputDir> -->
 		<modelExtension>prism</modelExtension>
 	</mc>
-
 	<mc type="PLASMA">
 		<name>plasma</name>
-		<!--Provide app path -->
 		<appPath>
 			<os type="WINDOWS">
-				C:\plasma\fr.inria.plasmalab.plasmalab-1.3.2.jar
+				<!--Provide path here if you are using windows -->
 			</os>
 			<os type="LINUX">
 				/opt/plasma/fr.inria.plasmalab.plasmalab-1.3.2.jar
@@ -39,32 +39,27 @@
 				/Users/memin/OneDrive/workspaces/JavaProjects/git/smcp/SMCTools/PLASMA_Lab-1.3.2/fr.inria.plasmalab.plasmalab-1.3.2.jar
 			</os>
 		</appPath>
-		<!-- <outputDir></outputDir> -->
 		<modelExtension>rml</modelExtension>
 	</mc>
 	<mc type="YMER">
 		<name>ymer</name>
-		<!--Provide app path -->
 		<appPath>
 			<os type="WINDOWS">
-
+				<!--Provide path here if you are using windows -->
 			</os>
 			<os type="LINUX">
 				/usr/local/bin/ymer
 			</os>
 			<os type="MAC">
-			
 			</os>
 		</appPath>
-		<!-- <outputDir></outputDir> -->
 		<modelExtension>prism</modelExtension>
 	</mc>
 	<mc type="MRMC" hasExternalTool="true">
 		<name>mrmc</name>
-		<!--Provide tool path -->
 		<appPath>
 			<os type="WINDOWS">
-				mrmc
+				<!--Provide MRMC path here if you are using windows -->
 			</os>
 			<os type="LINUX">
 				mrmc
@@ -72,13 +67,11 @@
 			<os type="MAC">
 			</os>
 		</appPath>
-		<!-- <outputDir></outputDir> -->
-		<!--MRMC uses prism extension then .tra, .lab automatically will be extracted -->
 		<externalTool type="PRISM">
 			<modelExtension>prism</modelExtension>
 			<externalToolPath>
 				<os type="WINDOWS">
-					C:\prism\prism-4.2.1\bin\prism.bat
+					<!-- MRMC relies on PRISM, here you need to provide the PRISM path -->
 				</os>
 				<os type="LINUX">
 					/opt/prism/prism-4.2.1/bin/prism
@@ -93,7 +86,7 @@
 		<!--Provide app path -->
 		<appPath>
 			<os type="WINDOWS">
-				C:\mc2\MC2v2.0beta2.jar
+				<!--Provide MC2 path here if you are using windows -->
 			</os>
 			<os type="LINUX">
 				/opt/mc2/mc2.jar
@@ -105,11 +98,13 @@
 			<modelExtension>sbml</modelExtension>
 			<externalToolPath>
 				<os type="WINDOWS">
-					C:\Users\Mehmet\OneDrive\git\modifiedGillespie2\Gillespie2\Debug\Gillespie2.exe
+					<!-- MC2 relies on GILLESPIE2, here you need to provide the GILLESPIE2 
+						path -->
 				</os>
 				<os type="LINUX">
-					<!-- The released version of modified gillespie2 -->
 					/usr/local/bin/gillespie2
+				</os>
+				<os type="MAC">
 				</os>
 			</externalToolPath>
 		</externalTool>

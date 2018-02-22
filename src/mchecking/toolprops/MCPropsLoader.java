@@ -36,7 +36,9 @@ public class MCPropsLoader {
 	 */
 	public static void loadMCProps(ModelChecker modelChecker) {
 		try {
-			File mcPropXML = new File("./MCProps.xml");
+			String mcPropsPath = System.getProperty("user.dir") + File.separator + "configs" + File.separator
+					+ "MCProps.xml";
+			File mcPropXML = new File(mcPropsPath);
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 			Document mcPropDoc = dBuilder.parse(mcPropXML);
@@ -66,7 +68,7 @@ public class MCPropsLoader {
 								}
 							}
 						}
-//						modelChecker.setOutPutDir(mcElement.getElementsByTagName("outputDir").item(0).getTextContent());
+						// modelChecker.setOutPutDir(mcElement.getElementsByTagName("outputDir").item(0).getTextContent());
 
 						// If model has external tools, then initialize the external properties.
 						String strHasExternalTool = mcElement.getAttribute("hasExternalTool");
@@ -83,8 +85,8 @@ public class MCPropsLoader {
 							// set external model type, i.e., name
 							externalToolObj.setExtTType(externalToolElement.getAttribute("type"));
 							// get model extension of external tool
-							externalToolObj.setModelExtension(
-									externalToolElement.getElementsByTagName("modelExtension").item(0).getTextContent());
+							externalToolObj.setModelExtension(externalToolElement.getElementsByTagName("modelExtension")
+									.item(0).getTextContent());
 							// if it is searched external tool then get its path
 							osList = ((Element) externalToolElement.getElementsByTagName("externalToolPath").item(0))
 									.getElementsByTagName("os");
@@ -140,7 +142,8 @@ public class MCPropsLoader {
 	// MCPropsLoader.setName(mcElement.getElementsByTagName("name").item(0).getTextContent());
 	//
 	// // get mc path, depends on the OS
-	// NodeList osList = ((Element) mcElement.getElementsByTagName("appPath").item(0))
+	// NodeList osList = ((Element)
+	// mcElement.getElementsByTagName("appPath").item(0))
 	// .getElementsByTagName("os");
 	// for (int j = 0; j < osList.getLength(); j++) {
 	// Node osNode = osList.item(j);
@@ -155,7 +158,8 @@ public class MCPropsLoader {
 	// }
 	// }
 	//
-	// // MCPropsLoader.setAppPath(mcElement.getElementsByTagName("appPath").item(0).getTextContent());
+	// //
+	// MCPropsLoader.setAppPath(mcElement.getElementsByTagName("appPath").item(0).getTextContent());
 	// MCPropsLoader.setOutPutDir(mcElement.getElementsByTagName("outputDir").item(0).getTextContent());
 	//
 	// // If model has external tools, then initialize the external properties.
@@ -166,7 +170,8 @@ public class MCPropsLoader {
 	//
 	// if (hasExternalTool) {
 	// MCPropsLoader.setHasExternalTool(hasExternalTool);
-	// Element externalToolElement = ((Element) (mcElement.getElementsByTagName("externalTool")
+	// Element externalToolElement = ((Element)
+	// (mcElement.getElementsByTagName("externalTool")
 	// .item(0)));
 	// // Initialize the external tool object
 	// ExternalTool externalToolObj = new ExternalTool();
@@ -176,7 +181,8 @@ public class MCPropsLoader {
 	// externalToolObj.setModelExtension(
 	// externalToolElement.getElementsByTagName("modelExtension").item(0).getTextContent());
 	// // if it is searched external tool then get its path
-	// osList = ((Element) externalToolElement.getElementsByTagName("externalToolPath").item(0))
+	// osList = ((Element)
+	// externalToolElement.getElementsByTagName("externalToolPath").item(0))
 	// .getElementsByTagName("os");
 	// for (int k = 0; k < osList.getLength(); k++) {
 	// Node osNode = osList.item(k);
@@ -192,7 +198,8 @@ public class MCPropsLoader {
 	// MCPropsLoader.setExternalTool(externalToolObj);
 	//
 	// } else {
-	// // if mc doesn't has external tool, then it will have its own model extension.
+	// // if mc doesn't has external tool, then it will have its own model
+	// extension.
 	// MCPropsLoader.setModelExtension(
 	// mcElement.getElementsByTagName("modelExtension").item(0).getTextContent());
 	// }
@@ -228,7 +235,8 @@ public class MCPropsLoader {
 	// if (name.isEmpty()) {
 	// name = "NoNameMC";
 	// log.warn(
-	// "Model checker name has not been specified. Check mcProp.xml file. 'NoName4MC' has been set as defaul model checker
+	// "Model checker name has not been specified. Check mcProp.xml file.
+	// 'NoName4MC' has been set as defaul model checker
 	// name.");
 	// }
 	// MCPropsLoader.name = name;
@@ -262,10 +270,12 @@ public class MCPropsLoader {
 	// */
 	// public static void setOutPutDir(String outPutDir) {
 	// if (outPutDir.isEmpty() || outPutDir == null) {
-	// outPutDir = System.getProperty("user.dir") + File.separator + "models" + File.separator + "translated"
+	// outPutDir = System.getProperty("user.dir") + File.separator + "models" +
+	// File.separator + "translated"
 	// + File.separator + MCPropsLoader.getName();
 	// // log.warn("The target output directory for '" + MCPropsLoader.getName()
-	// // + "' model checker has not been specified. Check mcProp.xml file.\n Therefore '" + outPutDir
+	// // + "' model checker has not been specified. Check mcProp.xml file.\n
+	// Therefore '" + outPutDir
 	// // + "' is used for default output directory.");
 	// }
 	// MCPropsLoader.outPutDir = outPutDir;
@@ -279,7 +289,8 @@ public class MCPropsLoader {
 	// if (modelExtension.isEmpty()) {
 	// modelExtension = "";
 	// log.warn(
-	// "MC model extension (eg. sm for prism), has not been specified. Check mcProp.xml file. No extension has been set as
+	// "MC model extension (eg. sm for prism), has not been specified. Check
+	// mcProp.xml file. No extension has been set as
 	// default model checker name.");
 	// }
 	// MCPropsLoader.modelExtension = modelExtension;
@@ -321,7 +332,8 @@ public class MCPropsLoader {
 	// }
 	//
 	// /**
-	// * Check either MCherker it self or its External tool uses PRISM, If it is so, we will check prism keywords. Currently
+	// * Check either MCherker it self or its External tool uses PRISM, If it is so,
+	// we will check prism keywords. Currently
 	// * only MC2 has choice to not use PRISM.
 	// *
 	// * @return the usesPrism
