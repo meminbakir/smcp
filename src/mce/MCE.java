@@ -39,7 +39,7 @@ public class MCE {
 		log.info("Application started.");
 		MCE mce = new MCE();
 		Inputs input = new Inputs(arguments);
-		log.info("Model file {}\n", input.getFileName());
+		log.info("Model file {}", input.getFileName());
 		mce.mce(input);
 		log.info("For more execution details please check the log file.");
 	}
