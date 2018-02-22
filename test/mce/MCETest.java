@@ -20,7 +20,7 @@ public class MCETest {
 //		 testMCE();
 		// "./models/sbml/test/original/"
 		//"./models/sbml/test/org2";
-		String dirPath = "./models/sbml/test/org2";//./models/sbml/test/no_modification";
+		String dirPath = "./models/sbml/test/org2/t2";//"./models/sbml/test/no_modification";//"./models/sbml/test/org2";
 		testMCEDir(dirPath);
 //		 countValidModel("./models/sbml/curated/");
 		// Object[] result = new Object[1];
@@ -43,7 +43,7 @@ public class MCETest {
 							Utils.out("[][][][][][][][][][][][][]{}{}{}{}{}{}{}{}{}{}{}{}{}{}[][][][][][][][][]");
 							try {
 								String arguments = "-s " + sbmlFile.getCanonicalPath() + " -q ./examples/query.pq "
-										+ " -o /Users/memin/Desktop/del -uB 1000000 -action verify";// -o /Users/memin/Desktop/del
+										+ " -o /Users/memin/Desktop/del -uB 1.0E7 -action verify";// -o /Users/memin/Desktop/del
 								String[] args = arguments.split(" ");
 								MCE.start(args);
 							} catch (IOException e) {
@@ -101,6 +101,7 @@ public class MCETest {
 		Validation validation = new Validation();
 		Inputs input=new Inputs();
 		input.upperBound=String.valueOf(Integer.MAX_VALUE-1);
+		input.lowerBound=String.valueOf(0);
 		validation.input=input;
 		List<String> validSBMLList = new ArrayList<String>();
 		List<String> notValidSBMLList = new ArrayList<String>();
@@ -110,9 +111,14 @@ public class MCETest {
 			if (fList != null) {
 				for (File sbmlFile : fList) {
 					if (sbmlFile.isFile()) {
+						if(sbmlFile.getName().contains("BIOMD0000000036")) {
+							System.out.println(String.format("%s", "stop"));
+							}
+						
 						if (sbmlFile.getName().endsWith(".sbml") || sbmlFile.getName().endsWith(".xml")) {
 							Utils.out("[][][][][][][][][][][][][]{}{}{}{}{}{}{}{}{}{}{}{}{}{}[][][][][][][][][]");
 							try {
+								input.setSbmlFilePath(sbmlFile.getAbsolutePath());
 								if (validation.validateSBML(sbmlFile.getAbsolutePath())) {
 									System.out.println("Valid");
 									validSBMLList.add(sbmlFile.getName());

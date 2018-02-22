@@ -20,9 +20,11 @@ import mchecking.translator.mct.prismt.PRISMT;
 
 /**
  * Scale was more extensive however, it was not scaling the decimal constants.
- * This class scales decimal constant and species to integer. It also checks the upper bound constrain.
+ * This class scales decimal constant and species to integer. It also checks the
+ * upper bound constrain.
  * 
- * TODO: For constants the upper bound should be Int.Max 
+ * TODO: For constants the upper bound should be Int.Max If only constants are
+ * decimal, then it is fine.
  * 
  * @author Mehmet Emin BAKIR
  *
@@ -32,8 +34,8 @@ public class Scale2 {
 
 	// Scale the non-constant species if they are decimal
 	private String scaleSpeciesMessage;
-	boolean isSpeciesNeedsScaling = false;
-	boolean isSpeciesScalable = true;
+	public boolean isConstAndSpeciesNeedsScaling = false;
+	public boolean isContsAndSpeciesScalable = true;
 
 	private ModelChecker targetMC;
 	private Inputs input;
@@ -66,20 +68,23 @@ public class Scale2 {
 	 * @return
 	 * 
 	 */
-//	public boolean isSpeciesScalable(Model sbmlModel) {
-//
-//		Double coeff = getCoefficient(sbmlModel);
-//		// if after getting the coefficient it is still scalable
-//		if (isSpeciesNeedsScaling && isSpeciesScalable) {
-//			log.warn("The model includes species which have decimal initial amount/concentration.\n"
-//					+ "However, model checker requires the intial value of species be an integer number.\n"
-//					+ "Therefore, the initial amount of all species will be scaled to integer value.");
-//
-//			// scale decimals
-//			isScaledSpeciesRemainWithinBounds(sbmlModel, coeff);
-//		}
-//		return isSpeciesScalable;
-//	}
+	// public boolean isContsAndSpeciesScalable(Model sbmlModel) {
+	//
+	// Double coeff = getCoefficient(sbmlModel);
+	// // if after getting the coefficient it is still scalable
+	// if (isConstAndSpeciesNeedsScaling && isContsAndSpeciesScalable) {
+	// log.warn("The model includes species which have decimal initial
+	// amount/concentration.\n"
+	// + "However, model checker requires the intial value of species be an integer
+	// number.\n"
+	// + "Therefore, the initial amount of all species will be scaled to integer
+	// value.");
+	//
+	// // scale decimals
+	// isScaledSpeciesRemainWithinBounds(sbmlModel, coeff);
+	// }
+	// return isContsAndSpeciesScalable;
+	// }
 
 	/**
 	 * Check if after scaling the new value will be within the integer value bounds.
@@ -109,7 +114,7 @@ public class Scale2 {
 						+ "Please, adjust the lower and upper bounds with '-lB' and '-uB' the command options.";
 				log.error(message);
 				setScalableMessage(message);
-				isSpeciesScalable = false;
+				isContsAndSpeciesScalable = false;
 				break;
 			}
 			// }
@@ -123,33 +128,130 @@ public class Scale2 {
 		return Integer.valueOf(input.getUpperBound());// Integer.MAX_VALUE;
 	}
 
-//	public void scaleSpeciesInitialValue(Model sbmlModel) {
-//		Double coeff = getCoefficient(sbmlModel);
-//		if (isSpeciesNeedsScaling && isSpeciesScalable) {
-//			log.warn("The model includes species which have decimal initial amount/concentration.\n"
-//					+ "However, model checker requires the initial value of species be an integer number.\n"
-//					+ "Therefore, the initial amount of all species will be scaled to integer value.");
-//
-//			// scale decimals
-//			scaleSpeciesInitialValue(sbmlModel, coeff);
-//		}
-//
-//	}
+	// public void scaleSpeciesInitialValue(Model sbmlModel) {
+	// Double coeff = getCoefficient(sbmlModel);
+	// if (isConstAndSpeciesNeedsScaling && isContsAndSpeciesScalable) {
+	// log.warn("The model includes species which have decimal initial
+	// amount/concentration.\n"
+	// + "However, model checker requires the initial value of species be an integer
+	// number.\n"
+	// + "Therefore, the initial amount of all species will be scaled to integer
+	// value.");
+	//
+	// // scale decimals
+	// scaleSpeciesInitialValue(sbmlModel, coeff);
+	// }
+	//
+	// }
 
 	public boolean scaleContantsAndSpecies(Model sbmlModel) {
 		Double coeff = getCoefficient4ConstantsAndSpecies(sbmlModel);
-		if (isSpeciesNeedsScaling && isSpeciesScalable) {
+		if (isConstAndSpeciesNeedsScaling && isContsAndSpeciesScalable) {
 			log.warn("The model includes species which have decimal initial amount/concentration.\n"
-					+ "However, model checker requires the initial value of species be an integer number.\n"
-					+ "Therefore, the initial amount of all species will be scaled to integer value.");
-
-			// scale decimals
-			scaleContantsAndSpecies(sbmlModel, coeff);
+					+ "However, model checker requires the initial value of species be an Integer number.\n"
+					+ "SMC Predictor internally scales the initial amount of all species will be scaled to integer value.\n"
+					+ "Alternatively , you can modify the initial value of species to be Integer number from your SBML file.");
+			if (coeff != null) {
+				// scale decimals
+				scaleConstantsAndSpecies(sbmlModel, coeff);
+			} else {
+				isContsAndSpeciesScalable = false;
+			}
 		}
-		return isSpeciesScalable;
+
+		return isContsAndSpeciesScalable;
 	}
 
-	private void scaleContantsAndSpecies(Model sbmlModel, Double coeff) {
+	/**
+	 * Check if any initial amount is in decimal, if so find the max coefficient so
+	 * that all species initial amount can be rescaled to remain within upper and
+	 * lower bounds
+	 * 
+	 * @param sbmlModel
+	 * @return
+	 */
+	private Double getCoefficient4ConstantsAndSpecies(Model sbmlModel) {
+		Species species = null;
+		Double coeff = 0.0;
+
+		// If only constants are decimal then we don't need to scale them to integer
+		// value.
+		boolean isConstant = true;
+		// scale compartment(s)
+		long numCompartments = sbmlModel.getNumCompartments();
+		for (int i = 0; i < numCompartments; i++) {
+			Compartment comp = sbmlModel.getCompartment(i);
+			String constName = comp.getId();
+			// if compartment size is NaN it is assigned to be 1.
+			double size = Double.isNaN(comp.getSize()) ? 1 : comp.getSize();
+			coeff = getTempCoeff4ConstAndSpecies(coeff, constName, size, isConstant);
+			if (coeff == null)
+				return coeff;
+		}
+		// Parameters which are declared in compartment level not in reaction level
+		ListOf<Parameter> listOfParameters1 = sbmlModel.getListOfParameters();
+		for (int i = 0; i < listOfParameters1.size(); i++) {
+			Parameter parameter = listOfParameters1.get(i);
+			String constName = parameter.getId();
+			double value = parameter.getValue();
+			coeff = getTempCoeff4ConstAndSpecies(coeff, constName, value, isConstant);
+			if (coeff == null)
+				return coeff;
+		}
+
+		// Add reaction level local parameters as constant
+		String constName;
+		double value;
+		for (int n = 0; n < sbmlModel.getNumReactions(); n++) {
+			Reaction reaction = sbmlModel.getReaction(n);
+			if (reaction.isSetKineticLaw()) {
+				KineticLaw kineticLaw = reaction.getKineticLaw();
+				ListOf<LocalParameter> listOfParameters2 = kineticLaw.getListOfLocalParameters();
+				for (int i = 0; i < listOfParameters2.size(); i++) {
+					LocalParameter parameter = listOfParameters2.get(i);
+					if (reaction.getReversible()) {
+						// forward rate
+						if (i == 0) {
+							constName = parameter.getId();
+							value = parameter.getValue();
+							coeff = getTempCoeff4ConstAndSpecies(coeff, constName, value, isConstant);
+							if (coeff == null)
+								return coeff;
+						}
+						// backward rate
+						else if (i == 1) {
+							constName = parameter.getId();
+							value = parameter.getValue();
+							coeff = getTempCoeff4ConstAndSpecies(coeff, constName, value, isConstant);
+							if (coeff == null)
+								return coeff;
+						}
+					}
+					// one-directional rate
+					else {
+						constName = parameter.getId();
+						value = parameter.getValue();
+						coeff = getTempCoeff4ConstAndSpecies(coeff, constName, value, isConstant);
+						if (coeff == null)
+							return coeff;
+					}
+				}
+			}
+		}
+
+		for (int n = 0; n < sbmlModel.getNumSpecies(); n++) {
+			isConstant = false;// it is species not constant
+			species = sbmlModel.getSpecies(n);
+			String speciesID = species.getId();
+			double initialValue = PRISMT.getSpeciesInitialValue(species);
+			coeff = getTempCoeff4ConstAndSpecies(coeff, speciesID, initialValue, isConstant);
+			if (coeff == null)
+				return coeff;
+		}
+		return coeff;
+	}
+
+	private void scaleConstantsAndSpecies(Model sbmlModel, Double coeff) {
 		// scale compartment(s)
 		long numCompartments = sbmlModel.getNumCompartments();
 		for (int i = 0; i < numCompartments; i++) {
@@ -158,17 +260,19 @@ public class Scale2 {
 			// if compartment size is NaN it is assigned to be 1.
 			double size = Double.isNaN(comp.getSize()) ? 1 : comp.getSize();
 			Double scaledValue = size * coeff;
-			if (isWithinTheBounds(scaledValue)) {
+			if (isWithinConstantBounds(scaledValue)) {
 				comp.setSize(scaledValue);
 				log.debug("Species:{} initial amount {} scaled to {}", constName, size, scaledValue);
 			} else {
-				log.error("The species {} has initial amount {}. "
-						+ "After rescaling to integer the initial value becomes {}. \n"
-						+ "However, the rescaled value is not within the integer bounds."
-						+ "Therefore, model checker's do not support it. "
-						+ "Please, revise the initial amount of the species.", constName, size, scaledValue);
+				log.error(
+						"The compartment {} has initial size {}. "
+								+ "After rescaling to integer the initial value becomes {}. \n"
+								+ "However, the rescaled value is not within the integer bounds."
+								+ "Therefore, model checker's do not support it. "
+								+ "Please, modify the initial amount of the compartment.",
+						constName, size, scaledValue);
 
-				isSpeciesScalable=false;
+				isContsAndSpeciesScalable = false;
 				return;
 			}
 			comp.setSize(scaledValue);
@@ -180,7 +284,7 @@ public class Scale2 {
 			String constName = parameter.getId();
 			double value = parameter.getValue();
 			Double scaledValue = value * coeff;
-			if (isWithinTheBounds(scaledValue)) {
+			if (isWithinConstantBounds(scaledValue)) {
 				parameter.setValue(scaledValue);
 				log.debug("Species:{} initial amount {} scaled to {}", constName, value, scaledValue);
 			} else {
@@ -188,9 +292,9 @@ public class Scale2 {
 						+ "After rescaling to all decimals to integer the value becomes {}. \n"
 						+ "However, the value is not within the integer bounds."
 						+ "Therefore, model checker's do not support it. "
-						+ "Please, revise the initial amount of the species.", constName, value, scaledValue);
+						+ "Please, modify the value of the parameter.", constName, value, scaledValue);
 
-				isSpeciesScalable=false;
+				isContsAndSpeciesScalable = false;
 				return;
 			}
 		}
@@ -211,19 +315,19 @@ public class Scale2 {
 							constName = parameter.getId();
 							value = parameter.getValue();
 							Double scaledValue = value * coeff;
-							if (isWithinTheBounds(scaledValue)) {
+							if (isWithinConstantBounds(scaledValue)) {
 								parameter.setValue(scaledValue);
 								log.debug("Species:{} initial amount {} scaled to {}", constName, value, scaledValue);
 							} else {
 								log.error(
-										"The species {} has initial amount {}. "
-												+ "After rescaling to integer the initial value becomes {}. \n"
-												+ "However, the rescaled value is not within the integer bounds."
+										"The parameter {} has value {}. "
+												+ "After rescaling to all decimals to integer the value becomes {}. \n"
+												+ "However, the value is not within the integer bounds."
 												+ "Therefore, model checker's do not support it. "
-												+ "Please, revise the initial amount of the species.",
+												+ "Please, modify the value of the parameter.",
 										constName, value, scaledValue);
 
-								isSpeciesScalable=false;
+								isContsAndSpeciesScalable = false;
 								return;
 							}
 							parameter.setValue(scaledValue);
@@ -233,19 +337,19 @@ public class Scale2 {
 							constName = parameter.getId();
 							value = parameter.getValue();
 							Double scaledValue = value * coeff;
-							if (isWithinTheBounds(scaledValue)) {
+							if (isWithinConstantBounds(scaledValue)) {
 								parameter.setValue(scaledValue);
 								log.debug("Species:{} initial amount {} scaled to {}", constName, value, scaledValue);
 							} else {
 								log.error(
-										"The species {} has initial amount {}. "
-												+ "After rescaling to integer the initial value becomes {}. \n"
-												+ "However, the rescaled value is not within the integer bounds."
+										"The parameter {} has value {}. "
+												+ "After rescaling to all decimals to integer the value becomes {}. \n"
+												+ "However, the value is not within the integer bounds."
 												+ "Therefore, model checker's do not support it. "
-												+ "Please, revise the initial amount of the species.",
+												+ "Please, modify the value of the parameter.",
 										constName, value, scaledValue);
 
-								isSpeciesScalable=false;
+								isContsAndSpeciesScalable = false;
 								return;
 							}
 							parameter.setValue(scaledValue);
@@ -256,19 +360,19 @@ public class Scale2 {
 						constName = parameter.getId();
 						value = parameter.getValue();
 						Double scaledValue = value * coeff;
-						if (isWithinTheBounds(scaledValue)) {
+						if (isWithinConstantBounds(scaledValue)) {
 							parameter.setValue(scaledValue);
 							log.debug("Species:{} initial amount {} scaled to {}", constName, value, scaledValue);
 						} else {
 							log.error(
-									"The species {} has initial amount {}. "
-											+ "After rescaling to integer the initial value becomes {}. \n"
-											+ "However, the rescaled value is not within the integer bounds."
+									"The parameter {} has value {}. "
+											+ "After rescaling to all decimals to integer the value becomes {}. \n"
+											+ "However, the value is not within the integer bounds."
 											+ "Therefore, model checker's do not support it. "
-											+ "Please, revise the initial amount of the species.",
+											+ "Please, modify the value of the parameter.",
 									constName, value, scaledValue);
 
-							isSpeciesScalable=false;
+							isContsAndSpeciesScalable = false;
 							return;
 						}
 						parameter.setValue(scaledValue);
@@ -283,22 +387,75 @@ public class Scale2 {
 			// initial value can be either initialAmount or initialConcentration (exclusive)
 			double initialValue = PRISMT.getSpeciesInitialValue(species);
 			Double scaledValue = initialValue * coeff;
-			if (isWithinTheBounds(scaledValue)) {
+			if (isWithinSpeciesBounds(scaledValue)) {
 				setSpeciesInitialValue(species, scaledValue);
 				log.debug("Species:{} initial amount {} scaled to {}", speciesID, initialValue, scaledValue);
 			} else {
-				log.error(
-						"The species {} has initial amount {}. "
-								+ "After rescaling to integer the initial value becomes {}. \n"
-								+ "However, the rescaled value is not within the integer bounds."
-								+ "Therefore, model checker's do not support it. "
-								+ "Please, revise the initial amount of the species.",
-						speciesID, initialValue, scaledValue);
+				log.error("The species {} has initial amount {}. "
+						+ "After rescaling to integer the initial value becomes {}."
+						+ "However, the rescaled value is not within the upper bound.\n"
+						+ "Please, modify your SBML model or change the bound command parameters (-lB or -uB), "
+						+ "i.e. try adding this parameters '-uB {}'(without quotes) when you run the SMC Predictor ",
+						speciesID, initialValue, scaledValue, scaledValue);
 
-				isSpeciesScalable=false;
+				isContsAndSpeciesScalable = false;
 				return;
 			}
 		}
+	}
+
+	/**
+	 * @param coeff
+	 * @param constName
+	 * @param size
+	 * @param isConstant
+	 * @return
+	 */
+	private Double getTempCoeff4ConstAndSpecies(Double coeff, String constName, double size, boolean isConstant) {
+		if (!Double.isNaN(size)) {
+			// there is a decimal number, so species will be scaled to integer value
+			if (!isInteger(size)) {
+				// if it is constant for now, do not assume it need scaling as if species are
+				// decimal then the integer scaling will be needed.
+				if (!isConstant) {
+					isConstAndSpeciesNeedsScaling = true;
+				}
+
+				Double tempCoeff = getCoefficient(size);
+				coeff = Math.max(coeff, tempCoeff);
+			}
+			// if it is constant
+			if (isConstant) {
+				if (!isWithinConstantBounds(size)) {// if not in int bounds
+					String message = "Parameter " + constName + " has initial amount " + size
+							+ " which is not within the integer bound '" + (Integer.MAX_VALUE - 1) + "'.\n";
+					log.error(message);
+					setScalableMessage(message);
+					isContsAndSpeciesScalable = false;
+					coeff = null;
+				}
+			} else { // if it is species
+				if (!isWithinSpeciesBounds(size)) { // if not in upper bounds
+					String message = "Species " + constName + " which has initial amount " + size
+							+ " which is not within the upper bound '" + ((int) getUpperBound()) + "'.\n"
+							+ "Please, adjust the lower and upper bounds with '-lB' and '-uB' the command options."
+							+ "e.g., try adding this parameters '-uB " + ((int)size)
+							+ "'(without quotes) when you run the SMC Predictor";
+					log.error(message);
+					setScalableMessage(message);
+					isConstAndSpeciesNeedsScaling = true;
+					isContsAndSpeciesScalable = false;
+					coeff = null;
+				}
+			}
+		} else {
+			String message = "The initial amount/concentration of species " + constName + " is not defined. "
+					+ "Model checker requires all species to have initial value.";
+			isContsAndSpeciesScalable = false;
+			setScalableMessage(message);// TODO: do we need this.
+			log.error(message);
+		}
+		return coeff;
 	}
 
 	/**
@@ -317,7 +474,7 @@ public class Scale2 {
 			// initial value can be either initialAmount or initialConcentration (exclusive)
 			double initialValue = PRISMT.getSpeciesInitialValue(species);
 			double scaledValue = initialValue * coeff;
-			if (isWithinTheBounds(scaledValue)) {
+			if (isWithinSpeciesBounds(scaledValue)) {
 				setSpeciesInitialValue(species, scaledValue);
 				log.debug("Species:{} initial amount {} scaled to {}", speciesID, initialValue, scaledValue);
 			} else {
@@ -333,125 +490,6 @@ public class Scale2 {
 			}
 			// }
 		}
-	}
-
-	/**
-	 * Check if any initial amount is in decimal, if so find the max coefficient so
-	 * that all species initial amount can be rescaled to remain within upper and
-	 * lower bounds
-	 * 
-	 * @param sbmlModel
-	 * @return
-	 */
-	private Double getCoefficient4ConstantsAndSpecies(Model sbmlModel) {
-		Species species = null;
-		Double coeff = 0.0;
-		// scale compartment(s)
-		long numCompartments = sbmlModel.getNumCompartments();
-		for (int i = 0; i < numCompartments; i++) {
-			Compartment comp = sbmlModel.getCompartment(i);
-			String constName = comp.getId();
-			// if compartment size is NaN it is assigned to be 1.
-			double size = Double.isNaN(comp.getSize()) ? 1 : comp.getSize();
-			coeff = getTempCoeff4ConstAndSpecies(coeff, constName, size);
-			if (coeff == null)
-				break;
-		}
-		// Parameters which are declared in compartment level not in reaction level
-		ListOf<Parameter> listOfParameters1 = sbmlModel.getListOfParameters();
-		for (int i = 0; i < listOfParameters1.size(); i++) {
-			Parameter parameter = listOfParameters1.get(i);
-			String constName = parameter.getId();
-			double value = parameter.getValue();
-			coeff = getTempCoeff4ConstAndSpecies(coeff, constName, value);
-			if (coeff == null)
-				break;
-		}
-
-		// Add reaction level local parameters as constant
-		String constName;
-		double value;
-		for (int n = 0; n < sbmlModel.getNumReactions(); n++) {
-			Reaction reaction = sbmlModel.getReaction(n);
-			if (reaction.isSetKineticLaw()) {
-				KineticLaw kineticLaw = reaction.getKineticLaw();
-				ListOf<LocalParameter> listOfParameters2 = kineticLaw.getListOfLocalParameters();
-				for (int i = 0; i < listOfParameters2.size(); i++) {
-					LocalParameter parameter = listOfParameters2.get(i);
-					if (reaction.getReversible()) {
-						// forward rate
-						if (i == 0) {
-							constName = parameter.getId();
-							value = parameter.getValue();
-							coeff = getTempCoeff4ConstAndSpecies(coeff, constName, value);
-							if (coeff == null)
-								break;
-						}
-						// backward rate
-						else if (i == 1) {
-							constName = parameter.getId();
-							value = parameter.getValue();
-							coeff = getTempCoeff4ConstAndSpecies(coeff, constName, value);
-							if (coeff == null)
-								break;
-						}
-					}
-					// one-directional rate
-					else {
-						constName = parameter.getId();
-						value = parameter.getValue();
-						coeff = getTempCoeff4ConstAndSpecies(coeff, constName, value);
-						if (coeff == null)
-							break;
-					}
-				}
-			}
-		}
-
-		for (int n = 0; n < sbmlModel.getNumSpecies(); n++) {
-			species = sbmlModel.getSpecies(n);
-			String speciesID = species.getId();
-			double initialValue = PRISMT.getSpeciesInitialValue(species);
-			coeff = getTempCoeff4ConstAndSpecies(coeff, speciesID, initialValue);
-			if (coeff == null)
-				break;
-		}
-		return coeff;
-	}
-
-	/**
-	 * @param coeff
-	 * @param constName
-	 * @param size
-	 * @return
-	 */
-	private Double getTempCoeff4ConstAndSpecies(Double coeff, String constName, double size) {
-		if (!Double.isNaN(size)) {
-			// if it is decimal
-			if (!isInteger(size)) {
-				// there is a decimal number, so species will be scaled to integer value
-				isSpeciesNeedsScaling = true;
-
-				Double tempCoeff = getCoefficient(size);
-				coeff = Math.max(coeff, tempCoeff);
-			}
-			if (!isWithinTheBounds(size)) {
-				String message = "Species " + constName + " has initial amount " + size
-						+ " which is not within the upper bound '" + ((int) getUpperBound()) + "'.\n"
-						+ "Please, adjust the lower and upper bounds with '-lB' and '-uB' the command options.";
-				log.error(message);
-				setScalableMessage(message);
-				isSpeciesScalable = false;
-				coeff = null;
-			}
-		} else {
-			String message = "The initial amount/concentration of species " + constName + " is not defined. "
-					+ "Model checker requires all species to have initial value.";
-			isSpeciesScalable = false;
-			setScalableMessage(message);// TODO: do we need this.
-			log.error(message);
-		}
-		return coeff;
 	}
 
 	/**
@@ -704,7 +742,7 @@ public class Scale2 {
 			value = 1;
 		}
 		updateMinMax(value);
-		if (!isWithinTheBounds(value)) {
+		if (!isWithinSpeciesBounds(value)) {
 			isConstantsWithinBounds = false;
 			String message = notInIntegerBoundsMessage(constName, value);
 			log.warn(message);
@@ -728,7 +766,15 @@ public class Scale2 {
 	 * @param value
 	 * @return
 	 */
-	private boolean isWithinTheBounds(double value) {
+	private boolean isWithinConstantBounds(double value) {
+		return (Math.abs(value) <= (Integer.MAX_VALUE - 1));
+	}
+
+	/**
+	 * @param value
+	 * @return
+	 */
+	private boolean isWithinSpeciesBounds(double value) {
 		return (Math.abs(value) <= getUpperBound());
 	}
 

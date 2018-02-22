@@ -7,6 +7,8 @@ import java.nio.file.Paths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import mce.util.Utils;
+
 /**
  * @author Mehmet
  *
@@ -17,7 +19,7 @@ public class Inputs {
 	private String sbmlFilePath = "";
 	private String fileName = "";
 	private String pQueryFilePath = "";
-	private String lowerBound = "0";
+	String lowerBound = "0";
 	public String upperBound = "100";
 	private String simSamples = "500";// simulation samples
 	private String simDepth = "5000";// simulation depth
@@ -57,7 +59,9 @@ public class Inputs {
 		this.predict = predict;
 	}
 
-	public Inputs() {}
+	public Inputs() {
+	}
+
 	public Inputs(String[] arguments) {
 		manageArgs(arguments);
 	}
@@ -95,12 +99,12 @@ public class Inputs {
 		upperBound = setBounds(upperBound);
 		// upperBound should be greater than lower bound.
 		checkBounds(lowerBound, upperBound);
-		//simulation settings
+		// simulation settings
 		optionalParamName = "-simSamples";
 		simSamples = setOptionalArguments(arguments, simSamples, optionalParamName);
 		optionalParamName = "-simDepth";
 		simDepth = setOptionalArguments(arguments, simDepth, optionalParamName);
-		
+
 		optionalParamName = "-o";
 		outputDir = setOptionalArguments(arguments, outputDir, optionalParamName);
 	}
@@ -324,7 +328,7 @@ public class Inputs {
 	private Integer getInteger(String str) {
 		Integer number = null;
 		try {
-			number = Integer.parseInt(str);
+			number = Integer.parseInt(Utils.convertFromScientificNotation(str));
 		} catch (NumberFormatException e) {
 			// not number
 		}

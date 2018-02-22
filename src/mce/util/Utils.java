@@ -10,11 +10,15 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -31,6 +35,7 @@ public class Utils {
 	public static final int TIMEOUT = 3600;// process time out, 1 hour in SECONDS
 	public static final TimeUnit TIMEUNIT = TimeUnit.SECONDS;
 	public static final String startInLowerPriority = "nice -n 10 ";
+	private static final DecimalFormatSymbols DECIMAL_FORMAT = DecimalFormatSymbols.getInstance(Locale.ENGLISH);
 
 	// Prints out message.
 	public static void out(String message) {
@@ -81,7 +86,8 @@ public class Utils {
 	}
 
 	/**
-	 * Run external tools command, e.g., Prism, Assign their outputs to output.extRes
+	 * Run external tools command, e.g., Prism, Assign their outputs to
+	 * output.extRes
 	 * 
 	 * @param extToolCommand
 	 * @param output
@@ -89,8 +95,8 @@ public class Utils {
 	 * @throws InterruptedException
 	 */
 
-	public static void runExternalToolCommand(String[] extToolCommand, Output output) throws IOException,
-			InterruptedException {
+	public static void runExternalToolCommand(String[] extToolCommand, Output output)
+			throws IOException, InterruptedException {
 
 		ProcessBuilder pb = new ProcessBuilder(extToolCommand);
 
@@ -138,8 +144,9 @@ public class Utils {
 	}
 
 	/***
-	 * It returns catch the output of external tools before the verification output. We use this to hide unnecessary outputs.
-	 * Its details will be displayed only error occurs.
+	 * It returns catch the output of external tools before the verification output.
+	 * We use this to hide unnecessary outputs. Its details will be displayed only
+	 * error occurs.
 	 * 
 	 * @param process
 	 * @param output
@@ -181,8 +188,8 @@ public class Utils {
 	}
 
 	/**
-	 * Sets timeout for process, makes sure the process will be completed in given time. If process doesn't exit on time, it
-	 * is regarded as error
+	 * Sets timeout for process, makes sure the process will be completed in given
+	 * time. If process doesn't exit on time, it is regarded as error
 	 * 
 	 * @param startTime
 	 * @param process
@@ -193,7 +200,8 @@ public class Utils {
 		// TODO this timeout can be removed or leaved after tests.
 		Long timeOut = (long) TIMEOUT;
 		if (output.hasExtTool) {
-			timeOut = timeOut - TimeUnit.SECONDS.convert(output.externalToolTime, TimeUnit.NANOSECONDS);// remained time for
+			timeOut = timeOut - TimeUnit.SECONDS.convert(output.externalToolTime, TimeUnit.NANOSECONDS);// remained time
+																										// for
 																										// the MC tool
 		}
 		boolean onTime = process.waitFor(timeOut, TIMEUNIT);
@@ -214,15 +222,17 @@ public class Utils {
 	}
 
 	/**
-	 * Sets timeout for external tool process, makes sure the process will be completed in given time. If process doesn't
-	 * exit on time, it is regarded as error
+	 * Sets timeout for external tool process, makes sure the process will be
+	 * completed in given time. If process doesn't exit on time, it is regarded as
+	 * error
 	 * 
 	 * @param startTime
 	 * @param process
 	 * @param output
 	 * @throws InterruptedException
 	 */
-	private static void waitForExtToolTimeOut(long startTime, Process process, Output output) throws InterruptedException {
+	private static void waitForExtToolTimeOut(long startTime, Process process, Output output)
+			throws InterruptedException {
 
 		// TODO this timeout can be removed or leaved after tests.
 		boolean onTime = process.waitFor(TIMEOUT, TIMEUNIT);
@@ -230,8 +240,8 @@ public class Utils {
 		// process is not completed on time, so we have interrupted it.
 		if (!onTime) {
 			output.isError = true;
-			output.error += "TIMEOUT:The execution of EXTERNAL TOOL (for " + output.mcType + ") took longer than " + TIMEOUT
-					+ " " + TIMEUNIT + "\n";
+			output.error += "TIMEOUT:The execution of EXTERNAL TOOL (for " + output.mcType + ") took longer than "
+					+ TIMEOUT + " " + TIMEUNIT + "\n";
 			elapsedTime = null;
 			if (process.isAlive()) {
 				process.destroyForcibly();
@@ -243,15 +253,16 @@ public class Utils {
 	}
 
 	/**
-	 * When external program launched with process, it might not end with destroy, therefore we have to find and kill it
-	 * separately
+	 * When external program launched with process, it might not end with destroy,
+	 * therefore we have to find and kill it separately
 	 * 
 	 * @param externalProcessName
 	 *            the process name which will be killed
 	 * @throws InterruptedException
 	 * @throws IOException
 	 */
-	public static void makeSureExternalProcessHasEnded(String externalProcessName) throws InterruptedException, IOException {
+	public static void makeSureExternalProcessHasEnded(String externalProcessName)
+			throws InterruptedException, IOException {
 		// kill process is platform dependent
 		switch (Utils.getOS()) {
 		case WINDOWS:
@@ -264,8 +275,8 @@ public class Utils {
 
 	}
 
-	public static void makeSureExternalLinuxProcessHasEnded(String externalProcessName) throws InterruptedException,
-			IOException {
+	public static void makeSureExternalLinuxProcessHasEnded(String externalProcessName)
+			throws InterruptedException, IOException {
 		String command = "ps -ef | grep " + externalProcessName + " | grep -v grep | awk '{print $2}' | xargs kill";
 
 		ProcessBuilder ps = new ProcessBuilder(new String[] { "/bin/sh", "-c", command });
@@ -321,10 +332,7 @@ public class Utils {
 
 	// TODO We can check the OS when app launches.
 	public enum OS {
-		WINDOWS,
-		LINUX,
-		MAC,
-		SOLARIS
+		WINDOWS, LINUX, MAC, SOLARIS
 	};// Operating systems.
 
 	public static OS getOS() {
@@ -384,7 +392,8 @@ public class Utils {
 	}
 
 	/**
-	 * Returns files inside current directory, excludes sub directories, and sorts files by size
+	 * Returns files inside current directory, excludes sub directories, and sorts
+	 * files by size
 	 * 
 	 * @param sbmlDirectory
 	 * @return
@@ -466,43 +475,54 @@ public class Utils {
 	}
 
 	public static String lineSeparator() {
-		String lineSeparator = "\n---------------------------------------------------------------\n";
+		String lineSeparator = "\n=================--------------------------=================\n";
 		return lineSeparator;
 	}
 
 	/**
 	 * Delete a directory, sub-directories and files, recursively
+	 * 
 	 * @param directory
 	 */
-	public static void deleteDirectory(File directory) throws IOException{
-	    	if(directory.isDirectory()){
-	    		//directory is empty, then delete it
-	    		if(directory.list().length==0){
-	    			directory.delete();
-	    		   System.out.println("Directory is deleted : " + directory.getAbsolutePath());
+	public static void deleteDirectory(File directory) throws IOException {
+		if (directory.isDirectory()) {
+			// directory is empty, then delete it
+			if (directory.list().length == 0) {
+				directory.delete();
+				System.out.println("Directory is deleted : " + directory.getAbsolutePath());
 
-	    		}else{
-	    		   //list all the directory contents
-	        	   String files[] = directory.list();
+			} else {
+				// list all the directory contents
+				String files[] = directory.list();
 
-	        	   for (String temp : files) {
-	        	      //construct the file structure
-	        	      File fileDelete = new File(directory, temp);
-	        	      //recursive delete
-	        	     deleteDirectory(fileDelete);
-	        	   }
-	        	   //check the directory again, if empty then delete it
-	        	   if(directory.list().length==0){
-	        		   directory.delete();
-	        	     System.out.println("Directory is deleted : "+ directory.getAbsolutePath());
-	        	   }
-	    		}
+				for (String temp : files) {
+					// construct the file structure
+					File fileDelete = new File(directory, temp);
+					// recursive delete
+					deleteDirectory(fileDelete);
+				}
+				// check the directory again, if empty then delete it
+				if (directory.list().length == 0) {
+					directory.delete();
+					System.out.println("Directory is deleted : " + directory.getAbsolutePath());
+				}
+			}
 
-	    	}else{
-	    		//if file, then delete it
-	    		directory.delete();
-	    		System.out.println("File is deleted : " + directory.getAbsolutePath());
-	    	}
-	    }
+		} else {
+			// if file, then delete it
+			directory.delete();
+			System.out.println("File is deleted : " + directory.getAbsolutePath());
+		}
+	}
 
+	public static String convertFromScientificNotation(double number) {
+		// Check if in scientific notation
+		NumberFormat formatter = new DecimalFormat("0", DECIMAL_FORMAT);
+		formatter.setMaximumFractionDigits(340);
+		return formatter.format(number);
+	}
+
+	public static String convertFromScientificNotation(String number) {
+		return convertFromScientificNotation(Double.valueOf(number));
+	}
 }

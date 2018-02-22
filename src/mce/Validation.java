@@ -74,25 +74,26 @@ public class Validation {
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean validateSBML(String sbmlFilePath) throws Exception {
+	public boolean validateSBML(String sbmlFilePath){
 		boolean isValid = true;
 		String errors = "";
 		try {
 			MySBMLReader reader = new MySBMLReader();
 			SBMLDocument document = reader.readSBML(sbmlFilePath);
 			if (document.getNumErrors() > 0) {
-				isValid = false;
 				errors += "SBML document has following errors, Please correct them!\n";
 				for (int i = 0; i < document.getNumErrors(); i++) {
 					errors += document.getError(i).getMessage() + "\n";
 				}
-				isValid = false;
+				isValid=false;
+				return isValid;
 			}
 			Model sbmlModel = document.getModel();
 			if (sbmlModel == null) {
 				errors += "There is no a model in the SBML document!\n";
 				addValidationError(ValidationError.Other);
 				isValid = false;
+				return isValid;
 			}
 
 			long numCompartments = sbmlModel.getNumCompartments();
@@ -100,6 +101,7 @@ public class Validation {
 				errors += "Multi compartments are not supported! Total comp num: " + numCompartments + "\n";
 				addValidationError(ValidationError.HasMultiCompartment);
 				isValid = false;
+				return isValid;
 			}
 
 			long numSpecies = sbmlModel.getNumSpecies();
@@ -107,6 +109,7 @@ public class Validation {
 				errors += "No species are defined.\n";
 				addValidationError(ValidationError.Other);
 				isValid = false;
+				return isValid;
 			}
 			// Check if model includes rules
 			long numRules = sbmlModel.getListOfRules().size();
@@ -114,6 +117,7 @@ public class Validation {
 				errors += "Model checkers does not support functions.\n" + "Therefore, SBML Rules are not supported \n";
 				addValidationError(ValidationError.HasRules);
 				isValid = false;
+				return isValid;
 			}
 
 			// Check if it includes functions,
@@ -125,6 +129,7 @@ public class Validation {
 				log.warn(message);
 				addValidationError(ValidationError.HasFunctions);
 				isValid = false;
+				return isValid;
 			}
 
 			// Check if initial amount is decimal, if so, then rescale to integer
@@ -136,13 +141,14 @@ public class Validation {
 //				addValidationError(ValidationError.HasDecimalAmount);
 //				isValid = false;
 //			}
-			Scale2 scale = new Scale2(input);
-			if (!scale.scaleContantsAndSpecies(sbmlModel)) {
-				String message = scale.getScalableMessage();
-				errors += message;
-				addValidationError(ValidationError.HasDecimalAmount);
-				isValid = false;
-			}
+//			Scale2 scale = new Scale2(input);
+//			if (!scale.scaleContantsAndSpecies(sbmlModel)) {
+//				String message = scale.getScalableMessage();
+//				errors += message;
+//				addValidationError(ValidationError.HasDecimalAmount);
+//				isValid = false;
+//				return isValid;
+//			}
 
 			// Check if kinetic formula is okay
 			long numReactions = sbmlModel.getNumReactions();
@@ -150,6 +156,7 @@ public class Validation {
 				errors += "No Reactions are defined.\n";
 				addValidationError(ValidationError.Other);
 				isValid = false;
+				return isValid;
 			} else {
 				// First get the species which involves in reaction
 				for (int i = 0; i < numReactions; i++) {
@@ -201,7 +208,7 @@ public class Validation {
 				output.error = "SBML file '" + sbmlFilePath + "' contains following problems.\n" + errors;
 			}
 		} catch (Exception e) {
-			log.error(e.getMessage(),e);
+			log.error(input.getFileName()+ " "+ e.getMessage(),e);
 		}
 
 		return isValid;

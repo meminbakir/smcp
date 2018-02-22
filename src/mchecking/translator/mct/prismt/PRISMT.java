@@ -89,6 +89,10 @@ public class PRISMT implements IMCT {
 		Model sbmlModel = sbmlDocument.getModel();
 		scale = new Scale2(input, targetMC);
 		scaleSBMLModel(sbmlModel);
+		//If model needs scaling but not scalable, then stop executing
+		if(!scale.isContsAndSpeciesScalable) {
+			return null;
+		}
 
 		setModel(sbmlModel, modelST);
 		setConstants(sbmlModel, modelST);
@@ -203,7 +207,7 @@ public class PRISMT implements IMCT {
 		guard.setBound("0");
 		guard.setType(Type.REACTANT);
 		guard.setOperator(Operator.NA);
-		guard.setComparer(Comparer.GEQ);
+		guard.setComparer(Comparer.GR);
 		guard.setStoichiometry("");
 		guardOfNextST.add("reactant", guard);
 		
@@ -567,7 +571,7 @@ public class PRISMT implements IMCT {
 						// species.getId()
 						// + "' is " + init + "\nThe amount will automatically be casted to Integer!");
 						// }
-						constBean = new Const("double", constName, String.valueOf(init));// String.valueOf((int) init)
+						constBean = new Const("double", constName, convertFromScientificNotation(init));// String.valueOf((int) init)
 						addedVars.add(constName);
 						constsST.add("consts", constBean);
 					}

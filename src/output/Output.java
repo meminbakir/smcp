@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import mce.Inputs;
+import mce.util.StringUtils;
 import mce.util.Utils;
 import mchecking.enums.MCTypes;
 import mchecking.translator.qt.MCQuery;
@@ -53,6 +54,7 @@ public class Output {
 	private String queryTranslationNote = "";
 	public String startTime;
 	private String predictResultMessage;
+	public boolean isVerified = true;// does model verified
 
 	public Output() {
 	}
@@ -100,22 +102,23 @@ public class Output {
 
 	public void print() {
 		String result = getInputDetails();
-		if (isVerifiable) {
+		if (isVerifiable && isVerified) {
 			result += getVerificationResult();
 		} else {
 			result += this.result;
 		}
+		if (!StringUtils.isNullOrEmpty(result)) {
+			result += Utils.lineSeparator();
+			log.debug(result);
+			Utils.out(result);
 
-		result += Utils.lineSeparator();
-		log.debug(result);
-		Utils.out(result);
-
-		// mrmc it produces its output with command line, in order to not
-		// overwrite the result file, I append the output details to file
-		if (mcType.equals(MCTypes.MRMC))
-			Utils.write2File(verificationResultFPath, result, true);
-		else
-			Utils.write2File(verificationResultFPath, result, true);
+			// mrmc it produces its output with command line, in order to not
+			// overwrite the result file, I append the output details to file
+			if (mcType.equals(MCTypes.MRMC))
+				Utils.write2File(verificationResultFPath, result, true);
+			else
+				Utils.write2File(verificationResultFPath, result, true);
+		}
 	}
 
 	/**
@@ -168,8 +171,9 @@ public class Output {
 
 	// Print pure only errors
 	public void printError() {
+		if(!StringUtils.isNullOrEmpty(error))
 		log.error(error);
-//		Utils.out(error);
+		// Utils.out(error);
 	}
 
 	public void setPredictResult(String message) {

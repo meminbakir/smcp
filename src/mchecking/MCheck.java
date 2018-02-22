@@ -42,7 +42,8 @@ public class MCheck {
 				output = new VerifyManager().verify(input, mcModelPath, targetMC, mcQuery);
 			} else {
 				output.isError = true;
-				output.error = "Model translation failed. See the log file.";
+				output.isVerified = false;
+				// output.error = "Model translation failed. See the log file.";
 			}
 
 		} else {

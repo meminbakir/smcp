@@ -36,9 +36,10 @@ public class MCE {
 	 * @param arguments
 	 */
 	public static void start(String[] arguments) {
+		log.info("Application started.");
 		MCE mce = new MCE();
 		Inputs input = new Inputs(arguments);
-		log.info("Application started. Model file {}", input.getFileName());
+		log.info("Model file {}\n", input.getFileName());
 		mce.mce(input);
 		log.info("For more execution details please check the log file.");
 	}
@@ -46,20 +47,20 @@ public class MCE {
 	private void mce(Inputs input) {
 		try {
 			Output output = compose(input);
-			if (output != null) {
-				if (output.isError) {
-					// prints errors related to validation
-					output.printError();
-				} else {
-					if (input.isPredict()) {
-						output.printPredictionResult();
-					} else if (input.isVerify()) {
-						output.print();
-					}
-				}
-			}
+			// if (output != null) {
+			// if (output.isError) {
+			// // prints errors related to validation
+			// output.printError();
+			// } else {
+			// if (input.isPredict()) {
+			// output.printPredictionResult();
+			// } else if (input.isVerify()) {
+			// output.print();
+			// }
+			// }
+			// }
 		} catch (Exception e) {
-			log.error(e.getMessage(),e);
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -81,21 +82,32 @@ public class MCE {
 			// Read pattern queries from the file
 			// TODO 04.Feb.2018 uncomment the following line and the line after which has
 			// the @4test annotation.
-			// List<PQuery> pQueryList =
-			// pQueryManager.loadPQueriesFromFile(input.getpQueryFilePath());
+			List<PQuery> pQueryList = pQueryManager.loadPQueriesFromFile(input.getpQueryFilePath());
 
-			List<PQuery> pQueryList = getPQueryList(input);// TODO @4test
+			// List<PQuery> pQueryList = getPQueryList(input);// TODO @4test
 			if (pQueryList != null) {
 				for (PQuery pQuery : pQueryList) {
 					if (pQuery != null) {
-						log.info("Pattern Query : " + pQuery.getPQuery());
+						log.info("Analysing Pattern Query: {}", pQuery.getPQuery());
 						output = new Composer().compose(input, sbml, pQuery);
 						if (output != null) {
 							output.setVerificationResultFPath(input);
-						}
+							if (output.isError) {
+								// prints errors related to validation
+								output.printError();
+							} else {
+								if (input.isPredict()) {
+									output.printPredictionResult();
+								} else if (input.isVerify()) {
+									output.print();
+								}
+							}
+						} else
+							System.out.println(String.format("%s", Utils.lineSeparator()));
 					} else {
-						log.warn("A query in pattern query file is null. We skipped it.");
+						log.warn("A query in pattern query file is null.It is skipped.");
 					}
+
 				}
 			}
 		}
@@ -172,19 +184,19 @@ public class MCE {
 					// first
 					// precedes
 					// second
-					query = "with probability >=1 INFINITELY-OFTEN " + speciesLast + ">=1"; // STEADY-STATE
-					query = "with probability >=1 STEADY-STATE " + speciesLast + ">=1"; // STEADY-STATE
-					query = "with probability >=1 " + species0Str + " >=50 WEAK-UNTIL " + speciesLast + ">=50"; // WEAK-UNTIL
-//					// ALWAYS
-					query = "with probability >=1 ALWAYS " + speciesLast + ">=" + (0);
-//
-					query = "with probability >=1 " + species0Str + " >=50 UNTIL " + speciesLast + ">=50";
-					query = "with probability >=1 NEVER " + speciesLast + ">=50"; // NEVER
-					query = "with probability >=1 " + species0Str + " >=50 PRECEDES " + speciesLast + ">=50";// first
-					query = "with probability >=1 " + speciesLast + " >=50 RELEASE " + species0Str + ">=50";
-					query = "with probability >=1 " + speciesLast + " >=3 FOLLOWS " + species0Str + ">=2"; // second
+					//
+					// // ALWAYS
 					query = "with probability >=0.3 NEXT " + speciesLast + ">=" + (1);
-					query = "with probability >=0.1 EVENTUALLY " + speciesLast + ">" + (2);
+					query = "with probability >=1 " + speciesLast + " >=3 FOLLOWS " + species0Str + ">=2"; // second
+					query = "with probability >=1 " + speciesLast + " >=50 RELEASE " + species0Str + ">=50";
+					query = "with probability >=1 " + species0Str + " >=50 PRECEDES " + speciesLast + ">=50";// first
+					query = "with probability >=1 NEVER " + speciesLast + ">=50"; // NEVER
+					query = "with probability >=1 " + species0Str + " >=50 WEAK-UNTIL " + speciesLast + ">=50"; // WEAK-UNTIL
+					query = "with probability >=1 STEADY-STATE " + speciesLast + ">=1"; // STEADY-STATE
+					query = "with probability >=1 INFINITELY-OFTEN " + speciesLast + ">=5"; // STEADY-STATE
+					query = "with probability >=0.1 EVENTUALLY " + speciesLast + ">" + 10;
+					query = "with probability >=1 ALWAYS " + speciesLast + ">=" + (0);
+					query = "with probability >=1 " + species0Str + " >=50 UNTIL " + speciesLast + ">=50";
 
 					pQuery.validateAndAssingPQuery(query);
 
