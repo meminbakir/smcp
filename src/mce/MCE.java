@@ -84,7 +84,7 @@ public class MCE {
 			// the @4test annotation.
 			List<PQuery> pQueryList = pQueryManager.loadPQueriesFromFile(input.getpQueryFilePath());
 
-//			 List<PQuery> pQueryList = getPQueryList(input);// TODO @4test
+			// List<PQuery> pQueryList = getPQueryList(input);// TODO @4test
 			if (pQueryList != null) {
 				for (PQuery pQuery : pQueryList) {
 					if (pQuery != null) {
@@ -195,9 +195,9 @@ public class MCE {
 					query = "with probability >=1 STEADY-STATE " + speciesLast + ">=1"; // STEADY-STATE
 					query = "with probability >=1 INFINITELY-OFTEN " + speciesLast + ">=5"; // STEADY-STATE
 					query = "with probability >=0.1 EVENTUALLY " + speciesLast + ">" + 10;
-					query = "with probability >=1 ALWAYS " + speciesLast + ">=" + (0);
 					query = "with probability >=1 " + species0Str + " >=50 UNTIL " + speciesLast + ">=50";
 					query = "with probability >=1 " + speciesLast + " >=3 FOLLOWS " + species0Str + ">=2"; // second
+					query = "with probability >=1 ALWAYS " + speciesLast + ">=" + (0);
 
 					pQuery.validateAndAssingPQuery(query);
 

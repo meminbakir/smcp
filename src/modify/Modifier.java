@@ -14,6 +14,7 @@ import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.SBMLWriter;
 import org.sbml.jsbml.Species;
 import org.sbml.jsbml.SpeciesReference;
+import org.sbml.jsbml.ASTNode.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,7 +110,7 @@ public class Modifier {
 			// write file back
 			writer.writeSBMLToFile(to, toPath);
 		} catch (Exception ex) {
-			log.error(ex.getMessage(),ex);
+			log.error(ex.getMessage(), ex);
 		}
 		log.debug("Modification completed.\nThe modified file written out to : " + toPath);
 		return toPath;
@@ -217,14 +218,20 @@ public class Modifier {
 			}
 			// generate kinetic law
 			toKL = toReaction.createKineticLaw();
+			// ASTNode c1 = new ASTNode();
+			// c1.setName(kineticConstname + (i + 1));
+			// toKL.setMath(c1);
+			// // Creates a Parameter ("c1")
+			// LocalParameter toParam = toKL.createLocalParameter();
+			// toParam.setId(kineticConstname + (i + 1));
+			// toParam.setValue(1);// Constant kinetic rate
+			// toParam.setUnits("substance");
 			ASTNode c1 = new ASTNode();
+			c1.setType(Type.INTEGER);
 			c1.setName(kineticConstname + (i + 1));
+			c1.setValue(1);
 			toKL.setMath(c1);
-			// Creates a Parameter ("c1")
-			LocalParameter toParam = toKL.createLocalParameter();
-			toParam.setId(kineticConstname + (i + 1));
-			toParam.setValue(1);// Constant kinetic rate
-			toParam.setUnits("substance");
+			
 		}
 	}
 

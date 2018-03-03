@@ -35,8 +35,8 @@ public class Composer {
 		Output output = new Output();
 
 		// Run all model checkers, for test purpose.
-		// output = testAllMCheckers(input, sbml, pQuery, patternPropsList);
-		output = testOneModelChecker(input, sbml, pQuery, patternPropsList);
+//		output = testAllMCheckers(input, sbml, pQuery, patternPropsList);
+		 output = testOneModelChecker(input, sbml, pQuery, patternPropsList);
 
 		return output;
 	}
@@ -69,7 +69,7 @@ public class Composer {
 			List<PatternProps> patternPropsList) {
 		ModelChecker targetMC = new MLearning().estimateMChecker(patternPropsList, pQuery);
 		Output output = null;
-		//if command line option is set to verify
+		// if command line option is set to verify
 		if (input.isVerify()) {
 			// Load the properties of target model checker from mcProb.xml file
 			MCPropsLoader.loadMCProps(targetMC);

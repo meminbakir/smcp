@@ -21,7 +21,7 @@ public class MCETest {
 		// "./models/sbml/test/original/"
 		// "./models/sbml/test/org2";
 		// "./examples"
-		String dirPath = "./models/sbml/test/org2/t2";// "./models/sbml/test/no_modification";//"./models/sbml/test/org2";
+		String dirPath = "./models/sbml/test/org2/";// "./models/sbml/test/no_modification";//"./models/sbml/test/org2";
 		testMCEDir(dirPath);
 		// countValidModel("./models/sbml/curated/");
 		// Object[] result = new Object[1];
@@ -44,8 +44,8 @@ public class MCETest {
 							Utils.out("[][][][][][][][][][][][][]{}{}{}{}{}{}{}{}{}{}{}{}{}{}[][][][][][][][][]");
 							try {
 								
-								String arguments = "-s " + sbmlFile.getCanonicalPath() + " -q ./examples/query.pq "
-										+ " -o /Users/memin/Desktop/del -uB "+(Integer.MAX_VALUE-1)+" -action verify";// -o
+								String arguments = "-s " + sbmlFile.getCanonicalPath() + " -q ./examples/query52.pq "
+										+ " -o /Users/memin/Desktop/del -uB "+(Integer.MAX_VALUE-1)+" -action verify";// (Integer.MAX_VALUE-1) -o
 																									// /Users/memin/Desktop/del
 								String[] args = arguments.split(" ");
 								MCE.start(args);

@@ -74,7 +74,7 @@ public class Validation {
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean validateSBML(String sbmlFilePath){
+	public boolean validateSBML(String sbmlFilePath) {
 		boolean isValid = true;
 		String errors = "";
 		try {
@@ -85,7 +85,7 @@ public class Validation {
 				for (int i = 0; i < document.getNumErrors(); i++) {
 					errors += document.getError(i).getMessage() + "\n";
 				}
-				isValid=false;
+				isValid = false;
 				return isValid;
 			}
 			Model sbmlModel = document.getModel();
@@ -120,6 +120,12 @@ public class Validation {
 				return isValid;
 			}
 
+			// Check if model includes Events
+			long numEvents = sbmlModel.getListOfEvents().size();
+			if (numEvents > 0) {
+				log.warn("The model includes Events. They are ignored.\n");
+			}
+
 			// Check if it includes functions,
 			long numFunctions = sbmlModel.getListOfFunctionDefinitions().size();
 			if (numFunctions > 0) {
@@ -134,21 +140,21 @@ public class Validation {
 
 			// Check if initial amount is decimal, if so, then rescale to integer
 			// return false, if it is decimal but not possible to rescale it
-//			Scale scale = new Scale(input);
-//			if (!scale.isSpeciesScalable(sbmlModel)) {
-//				String message = scale.getScalableMessage();
-//				errors += message;
-//				addValidationError(ValidationError.HasDecimalAmount);
-//				isValid = false;
-//			}
-//			Scale2 scale = new Scale2(input);
-//			if (!scale.scaleContantsAndSpecies(sbmlModel)) {
-//				String message = scale.getScalableMessage();
-//				errors += message;
-//				addValidationError(ValidationError.HasDecimalAmount);
-//				isValid = false;
-//				return isValid;
-//			}
+			// Scale scale = new Scale(input);
+			// if (!scale.isSpeciesScalable(sbmlModel)) {
+			// String message = scale.getScalableMessage();
+			// errors += message;
+			// addValidationError(ValidationError.HasDecimalAmount);
+			// isValid = false;
+			// }
+			Scale2 scale = new Scale2(input);
+			if (!scale.scaleContantsAndSpecies(sbmlModel)) {
+				String message = scale.getScalableMessage();
+				errors += message;
+				addValidationError(ValidationError.HasDecimalAmount);
+				isValid = false;
+				return isValid;
+			}
 
 			// Check if kinetic formula is okay
 			long numReactions = sbmlModel.getNumReactions();
@@ -208,7 +214,7 @@ public class Validation {
 				output.error = "SBML file '" + sbmlFilePath + "' contains following problems.\n" + errors;
 			}
 		} catch (Exception e) {
-			log.error(input.getFileName()+ " "+ e.getMessage(),e);
+			log.error(input.getFileName() + " " + e.getMessage(), e);
 		}
 
 		return isValid;
