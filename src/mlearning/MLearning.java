@@ -23,16 +23,21 @@ public class MLearning {
 		Predictor predictor = new Predictor();
 		MCTypes targetMC = predictor.pythonPredict(patternPropsList, pQuery);
 		log.info("Prediction Ended.");
-		// Cross-Checks if the estimated MC can verify the query. But ML has to return the one can verify.
-		ModelChecker targetModelChecker = new ModelChecker(targetMC);
-		List<MCTypes> supportedMCs = ModelChecker.getSupportedModelCheckers(pQuery);
-		if (supportedMCs.contains(targetModelChecker.getType())) {
-			log.info("The fastest SMC prediction for " + pQuery.getPatterns().get(1) + " pattern is: "
-					+ targetModelChecker.getType());
-		} else {
-			// If predicted SMC does not support the pattern
-			log.error("Problem... The estimated SMC " + targetModelChecker.getType() + " does not support the pattern :"
-					+ pQuery.getPQuery()); // Actually, this problem should never happen.
+		// Cross-Checks if the estimated MC can verify the query. But ML has to return
+		// the one can verify.
+		ModelChecker targetModelChecker = null;
+		if (targetMC != null) {
+			targetModelChecker = new ModelChecker(targetMC);
+			List<MCTypes> supportedMCs = ModelChecker.getSupportedModelCheckers(pQuery);
+			if (supportedMCs.contains(targetModelChecker.getType())) {
+				log.info("The fastest SMC prediction for " + pQuery.getPatterns().get(1) + " pattern is: "
+						+ targetModelChecker.getType());
+			} else {
+				// If predicted SMC does not support the pattern
+				log.error("Problem... The estimated SMC " + targetModelChecker.getType()
+						+ " does not support the pattern :" + pQuery.getPQuery()); // Actually, this problem should
+																					// never happen.
+			}
 		}
 		return targetModelChecker;
 	}
