@@ -48,8 +48,10 @@ class Predictor {
 			stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 
 		} catch (Exception e) {
-			log.error(e.getMessage());
-			e.printStackTrace();
+			String message = "Please make sure you set up Python interpreter correctly in the ./configs/python_config.properties file";
+			log.error(message);
+			log.error(e.getMessage(), e);
+			System.exit(1);
 		} finally {
 			try {
 				String line = "";

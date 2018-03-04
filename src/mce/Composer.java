@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import mce.util.StringUtils;
+import mce.util.Utils;
 import mchecking.MCheck;
 import mchecking.ModelChecker;
 import mchecking.toolprops.MCPropsLoader;
@@ -35,8 +36,8 @@ public class Composer {
 		Output output = new Output();
 
 		// Run all model checkers, for test purpose.
-//		output = testAllMCheckers(input, sbml, pQuery, patternPropsList);
-		 output = testOneModelChecker(input, sbml, pQuery, patternPropsList);
+		// output = testAllMCheckers(input, sbml, pQuery, patternPropsList);
+		output = testOneModelChecker(input, sbml, pQuery, patternPropsList);
 
 		return output;
 	}
@@ -69,30 +70,34 @@ public class Composer {
 			List<PatternProps> patternPropsList) {
 		ModelChecker targetMC = new MLearning().estimateMChecker(patternPropsList, pQuery);
 		Output output = null;
-		// if command line option is set to verify
-		if (input.isVerify()) {
-			// Load the properties of target model checker from mcProb.xml file
-			MCPropsLoader.loadMCProps(targetMC);
-			boolean isAppPathConfigured = false;
-			// if model checker execution file is not exits, it cannot be verified.
-			if (targetMC.getAppPath() != null) {
-				if (!StringUtils.isNullOrEmpty(targetMC.getAppPath())) {
-					output = new MCheck().modelCheck(input, sbml, targetMC, pQuery);
-					isAppPathConfigured = true;
+		if (targetMC != null) {
+			// if command line option is set to verify
+			if (input.isVerify()) {
+				// Load the properties of target model checker from mcProb.xml file
+				MCPropsLoader.loadMCProps(targetMC);
+				boolean isAppPathConfigured = false;
+				// if model checker execution file is not exits, it cannot be verified.
+				if (targetMC.getAppPath() != null) {
+					if (!StringUtils.isNullOrEmpty(targetMC.getAppPath())) {
+						output = new MCheck().modelCheck(input, sbml, targetMC, pQuery);
+						isAppPathConfigured = true;
+					}
 				}
-			}
-			// if app path is not configured in MCProps then rise error.
-			if (!isAppPathConfigured) {
-				log.error(
-						"Please check {} path in MCProps.xml file. Make sure you set path correctly inside the corresponding operating system field.",
-						targetMC.getType(), targetMC.getType());
+				// if app path is not configured in MCProps then rise error.
+				if (!isAppPathConfigured) {
+					log.error(
+							"Please check {} path in MCProps.xml file. Make sure you set path correctly inside the corresponding operating system field.",
+							targetMC.getType(), targetMC.getType());
 
+				}
+			} else {
+				output = new Output();
+				String message = String.format(
+						"Prediction Result:\nThe fastest SMC prediction for model %s, and pattern %s is: %s",
+						input.getFileName(), pQuery.getPatterns().get(1), targetMC.getType());
+				message += String.format("%s", Utils.lineSeparator());
+				output.setPredictResult(message);
 			}
-		} else {
-			output = new Output();
-			String message = String.format("The fastest SMC prediction for model: %s and pattern: %s is: %s",
-					input.getFileName(), pQuery.getPatterns().get(1), targetMC.getType());
-			output.setPredictResult(message);
 		}
 		return output;
 	}

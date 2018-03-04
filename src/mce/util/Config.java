@@ -5,7 +5,7 @@ package mce.util;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -65,11 +65,18 @@ public class Config {
 				pythonInterpreter = prop.getProperty("python");
 				// System.out.println(pythonInterpreter);
 			} else {
-				log.error("Python interpreter not found in " + fileName);
+				log.error(
+						"Python interpreter is not found in {}\nCheck http://www.smcpredictor.com/tutorial.html to learn how to configure SMC Predictor tool.",
+						fileName);
+				System.exit(1);
 			}
 
-		} catch (IOException ex) {
-			ex.printStackTrace();
+		}catch(FileNotFoundException ex) {
+			log.error(ex.getMessage(),ex);
+			System.exit(1);
+		}
+		catch (Exception ex) {
+			log.error(ex.getMessage(),ex);
 		}
 		// finally {
 		// if (input != null) {
