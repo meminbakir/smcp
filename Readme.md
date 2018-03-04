@@ -5,5 +5,5 @@ The code includes eclipse (https://www.eclipse.org/) project file which allows y
 You need to have Python 3 with sklearn module(http://scikit-learn.org/stable/), Java "1.8" or above versions on your system.
 Additionally you need to modify the configs/python_config.properties file to locate your python3 path.</p>
 
-<p>If you just want to use the tool, the binary file are available for at http://www.inf.brad.ac.uk/~skonur/smcp/download.html
-For more information on running the tool and tutorials please visit http://www.inf.brad.ac.uk/~skonur/smcp/ </p>
+<p>If you just want to use the tool, the binary file are available for at http://www.smcpredictor.com/download.html
+For more information on running the tool and tutorials please visit http://www.smcpredictor.com </p>
